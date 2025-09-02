@@ -20,8 +20,9 @@ export default function CreatorHeader() {
 
   const nav = [
     { name: "Dashboard", href: "/dashboard" },
-    { name: "My Patterns", href: "/creator/patterns" },
-    { name: "Earnings", href: "/creator/earnings" },
+    { name: "Community", href: "/community" },
+    { name: "My Patterns", href: "/patterns" },
+    { name: "Earnings", href: "/earnings" },
   ];
 
   return (
@@ -29,25 +30,25 @@ export default function CreatorHeader() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
           <Link href="/dashboard" className="flex items-center space-x-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-purple-600 text-white font-bold">C</div>
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-500 text-white font-bold">C</div>
             <span className="text-xl font-bold text-gray-900 dark:text-white">Aury Creator</span>
           </Link>
 
           <nav className="hidden space-x-8 lg:flex">
             {nav.map((n) => (
-              <Link key={n.name} href={n.href} className="text-gray-700 hover:text-purple-600 dark:text-gray-200 dark:hover:text-purple-400 font-medium">
+              <Link key={n.name} href={n.href} className="text-gray-700 hover:text-blue-600 dark:text-gray-200 dark:hover:text-blue-400 font-medium">
                 {n.name}
               </Link>
             ))}
           </nav>
 
           <div className="hidden lg:flex items-center space-x-4">
-            <div className="h-9 w-9 flex items-center justify-center rounded-full bg-purple-600 text-white font-bold">
+            <div className="h-9 w-9 flex items-center justify-center rounded-full bg-blue-600 text-white font-bold">
               {initials}
             </div>
             <button
               onClick={async () => { await signOut(); window.location.href = "/sign-in"; }}
-              className="rounded-full bg-purple-600 px-4 py-2 text-white font-medium hover:bg-purple-700"
+              className="rounded-full bg-blue-500 px-4 py-2 text-white font-medium hover:bg-blue-600"
             >
               Sign out
             </button>
@@ -69,7 +70,7 @@ export default function CreatorHeader() {
             ))}
             <button
               onClick={async () => { await signOut(); window.location.href = "/sign-in"; }}
-              className="w-full text-center rounded-md bg-purple-600 py-2.5 text-white hover:bg-purple-700"
+              className="w-full text-center rounded-md bg-blue-500 py-2.5 text-white hover:bg-blue-600"
             >
               Sign out
             </button>
