@@ -2,6 +2,7 @@ interface User {
   name: string;
   email: string;
   id: string;
+  role: "creator" | "customer";
 }
 
 interface SignUpParams {
@@ -9,6 +10,7 @@ interface SignUpParams {
   name: string;
   email: string;
   password: string;
+  role: "creator" | "customer";
 }
 interface SignInParams {
   email: string;
