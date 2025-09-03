@@ -1,4 +1,4 @@
-import CreatorHeader from "@/components/creator/CreatorHeader";
+import Sidebar from "@/components/creator/Sidebar";
 import { getCurrentUser } from "@/lib/actions/auth.action";
 import { redirect } from "next/navigation";
 import React, { ReactNode } from 'react'
@@ -9,9 +9,13 @@ const CreatorLayout = async ({ children }: { children: ReactNode }) => {
   if (user.role !== "creator") redirect("/");
 
   return (
-    <div>
-      <CreatorHeader />
-      <div className="pt-16">{children}</div>
+    <div className="flex min-h-screen bg-gray-50 dark:bg-gray-900">
+      <Sidebar />
+      <div className="flex-1 lg:ml-64 transition-all duration-300">
+        <div className="p-4 lg:p-0">
+          {children}
+        </div>
+      </div>
     </div>
   )
 }

@@ -5,6 +5,8 @@ import React, { useState } from 'react';
 import { formatDistanceToNow } from 'date-fns';
 import { addComment, getComments, toggleLike } from '@/lib/actions/community.action';
 import Image from 'next/image';
+import { Heart, MessageCircle, Share2, Copy, Check } from 'lucide-react';
+import { toast } from 'sonner';
 
 interface PostCardProps {
   post: Post;
@@ -18,6 +20,9 @@ export default function PostCard({ post }: PostCardProps) {
   const [commentText, setCommentText] = useState('');
   const [loadingComments, setLoadingComments] = useState(false);
   const [submittingComment, setSubmittingComment] = useState(false);
+  const [showShareMenu, setShowShareMenu] = useState(false);
+  const [copied, setCopied] = useState(false);
+  
   const getInitials = (name: string) => {
     return name
       .split(' ')
@@ -36,10 +41,99 @@ export default function PostCard({ post }: PostCardProps) {
     }
   };
 
+  const handleLike = async () => {
+    const originalLiked = liked;
+    const originalCount = likesCount;
+    
+    // Optimistic update
+    setLiked(!liked);
+    setLikesCount(liked ? likesCount - 1 : likesCount + 1);
+    
+    try {
+      const result = await toggleLike(post.id);
+      if (result.success) {
+        setLiked(!!result.liked);
+        setLikesCount(result.likesCount ?? 0);
+      } else {
+        // Revert on error
+        setLiked(originalLiked);
+        setLikesCount(originalCount);
+        toast.error('Failed to update like');
+      }
+    } catch (error) {
+      // Revert on error
+      setLiked(originalLiked);
+      setLikesCount(originalCount);
+      toast.error('Failed to update like');
+    }
+  };
+
+  const handleToggleComments = async () => {
+    const nextShow = !showComments;
+    setShowComments(nextShow);
+    
+    if (nextShow && comments.length === 0) {
+      setLoadingComments(true);
+      try {
+        const result = await getComments(post.id);
+        if (result.success && result.comments) {
+          setComments(result.comments);
+        }
+      } catch (error) {
+        toast.error('Failed to load comments');
+      } finally {
+        setLoadingComments(false);
+      }
+    }
+  };
+
+  const handleAddComment = async () => {
+    if (!commentText.trim()) return;
+    
+    setSubmittingComment(true);
+    try {
+      const result = await addComment(post.id, commentText.trim());
+      if (result.success && result.comment) {
+        setComments(prev => [result.comment!, ...prev]);
+        setCommentText('');
+        toast.success('Comment added!');
+      } else {
+        toast.error('Failed to add comment');
+      }
+    } catch (error) {
+      toast.error('Failed to add comment');
+    } finally {
+      setSubmittingComment(false);
+    }
+  };
+
+  const handleShare = async (type: 'copy' | 'twitter' | 'facebook') => {
+    const url = `${window.location.origin}/post/${post.id}`;
+    
+    switch (type) {
+      case 'copy':
+        try {
+          await navigator.clipboard.writeText(url);
+          setCopied(true);
+          toast.success('Link copied to clipboard!');
+          setTimeout(() => setCopied(false), 2000);
+        } catch (error) {
+          toast.error('Failed to copy link');
+        }
+        break;
+      case 'twitter':
+        window.open(`https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(post.content.slice(0, 100))}`, '_blank');
+        break;
+      case 'facebook':
+        window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`, '_blank');
+        break;
+    }
+    setShowShareMenu(false);
+  };
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 border border-gray-200 dark:border-gray-700">
+    <article className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-xl transition-shadow duration-300">
       {/* Author Info */}
-      <div className="flex items-center space-x-3 mb-4">
+      <div className="flex items-center space-x-3 p-4 border-b border-gray-100 dark:border-gray-700">
         <div className="h-10 w-10 flex items-center justify-center rounded-full bg-blue-500 text-white font-bold">
           {getInitials(post.authorName)}
         </div>
@@ -54,116 +148,177 @@ export default function PostCard({ post }: PostCardProps) {
       </div>
 
       {/* Post Content */}
-      <div className="space-y-4">
+      <div className="p-4 space-y-4">
         <p className="text-gray-800 dark:text-gray-200 leading-relaxed">
           {post.content}
         </p>
-
-        {/* Post Image */}
-        {post.imageUrl && (
-          <div className="rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700">
-            <Image
-              src={post.imageUrl}
-              alt="Post image"
-              width={1200}
-              height={800}
-              className="w-full h-auto max-h-96 object-cover"
-            />
-          </div>
-        )}
       </div>
 
+      {/* Post Image */}
+      {post.imageUrl && (
+        <div className="relative">
+          <Image
+            src={post.imageUrl}
+            alt="Post image"
+            width={600}
+            height={400}
+            className="w-full h-auto object-cover"
+          />
+        </div>
+      )}
+
       {/* Engagement Section */}
-      <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700">
-        <div className="flex items-center justify-between text-sm text-gray-600 dark:text-gray-300">
-          <div className="flex items-center space-x-4">
+      <div className="p-4 border-t border-gray-100 dark:border-gray-700">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-1">
+            {/* Like Button */}
             <button
-              onClick={async () => {
-                const res = await toggleLike(post.id);
-                if (res.success) {
-                  setLiked(!!res.liked);
-                  setLikesCount(res.likesCount ?? likesCount);
+              onClick={handleLike}
+              className={`
+                flex items-center gap-2 px-3 py-2 rounded-lg transition-all duration-200
+                ${liked 
+                  ? 'text-red-500 bg-red-50 dark:bg-red-900/20' 
+                  : 'text-gray-600 dark:text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20'
                 }
-              }}
-              className={`transition-colors cursor-pointer ${liked ? 'text-blue-600 dark:text-blue-400' : 'hover:text-blue-600 dark:hover:text-blue-400'}`}
+              `}
+              aria-label={liked ? 'Unlike post' : 'Like post'}
             >
-              {liked ? 'Liked' : 'Like'} • {likesCount}
+              <Heart className={`h-5 w-5 ${liked ? 'fill-current' : ''}`} />
+              <span className="text-sm font-medium">{likesCount}</span>
             </button>
 
+            {/* Comment Button */}
             <button
-              onClick={async () => {
-                const next = !showComments;
-                setShowComments(next);
-                if (next && comments.length === 0) {
-                  setLoadingComments(true);
-                  const res = await getComments(post.id);
-                  if (res.success && res.comments) setComments(res.comments);
-                  setLoadingComments(false);
+              onClick={handleToggleComments}
+              className={`
+                flex items-center gap-2 px-3 py-2 rounded-lg transition-all duration-200
+                ${showComments 
+                  ? 'text-blue-500 bg-blue-50 dark:bg-blue-900/20' 
+                  : 'text-gray-600 dark:text-gray-400 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20'
                 }
-              }}
-              className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors cursor-pointer"
+              `}
+              aria-label="Toggle comments"
             >
-              Comment • {post.commentsCount ?? 0}
+              <MessageCircle className="h-5 w-5" />
+              <span className="text-sm font-medium">{post.commentsCount ?? 0}</span>
             </button>
+          </div>
 
+          {/* Share Button */}
+          <div className="relative">
             <button
-              onClick={async () => {
-                try {
-                  await navigator.clipboard.writeText(`${window.location.origin}/post/${post.id}`);
-                  // Simple inline feedback; could use toast if available here
-                } catch {}
-              }}
-              className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors cursor-pointer"
+              onClick={() => setShowShareMenu(!showShareMenu)}
+              className="flex items-center gap-2 px-3 py-2 rounded-lg text-gray-600 dark:text-gray-400 
+                       hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 
+                       transition-all duration-200"
+              aria-label="Share post"
             >
-              Share
+              <Share2 className="h-5 w-5" />
             </button>
+            
+            {/* Share Menu */}
+            {showShareMenu && (
+              <div className="absolute right-0 top-full mt-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-2 z-10 min-w-[160px]">
+                <button
+                  onClick={() => handleShare('copy')}
+                  className="w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+                >
+                  {copied ? <Check className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4" />}
+                  {copied ? 'Copied!' : 'Copy Link'}
+                </button>
+                <button
+                  onClick={() => handleShare('twitter')}
+                  className="w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+                >
+                  <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                  </svg>
+                  Share on X
+                </button>
+                <button
+                  onClick={() => handleShare('facebook')}
+                  className="w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+                >
+                  <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                  </svg>
+                  Share on Facebook
+                </button>
+              </div>
+            )}
           </div>
         </div>
 
+        {/* Comments Section */}
         {showComments && (
-          <div className="mt-4 space-y-3">
-            <div className="flex items-center space-x-2">
+          <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700 space-y-4">
+            {/* Add Comment */}
+            <div className="flex items-start space-x-3">
               <input
                 value={commentText}
                 onChange={(e) => setCommentText(e.target.value)}
+                onKeyPress={(e) => e.key === 'Enter' && !e.shiftKey && handleAddComment()}
                 placeholder="Write a comment..."
-                className="flex-1 border rounded-md px-3 py-2 bg-white text-gray-900 dark:bg-gray-700 dark:text-white border-gray-300 dark:border-gray-600"
+                className="flex-1 border rounded-lg px-3 py-2 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white 
+                         border-gray-200 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 focus:border-transparent
+                         placeholder-gray-500 dark:placeholder-gray-400"
               />
               <button
-                disabled={submittingComment || commentText.trim().length === 0}
-                onClick={async () => {
-                  setSubmittingComment(true);
-                  const res = await addComment(post.id, commentText);
-                  if (res.success && res.comment) {
-                    setComments((c) => [res.comment!, ...c]);
-                    setCommentText('');
-                  }
-                  setSubmittingComment(false);
-                }}
-                className="rounded-md bg-blue-600 px-4 py-2 text-white font-medium hover:bg-blue-700 disabled:opacity-50"
+                onClick={handleAddComment}
+                disabled={submittingComment || !commentText.trim()}
+                className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg font-medium 
+                         transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {submittingComment ? 'Posting...' : 'Post'}
               </button>
             </div>
 
+            {/* Comments List */}
             {loadingComments ? (
-              <p className="text-sm text-gray-500">Loading comments...</p>
-            ) : comments.length === 0 ? (
-              <p className="text-sm text-gray-500">No comments yet.</p>
-            ) : (
-              <ul className="space-y-2">
-                {comments.map((c) => (
-                  <li key={c.id} className="bg-gray-50 dark:bg-gray-700 rounded-md p-3">
-                    <div className="text-sm text-gray-900 dark:text-white font-medium">{c.authorName}</div>
-                    <div className="text-sm text-gray-700 dark:text-gray-200">{c.text}</div>
-                    <div className="text-xs text-gray-500">{formatDistanceToNow(new Date(c.createdAt), { addSuffix: true })}</div>
-                  </li>
+              <div className="space-y-3">
+                {Array.from({ length: 2 }).map((_, i) => (
+                  <div key={i} className="animate-pulse">
+                    <div className="flex space-x-3">
+                      <div className="h-8 w-8 bg-gray-200 dark:bg-gray-600 rounded-full"></div>
+                      <div className="flex-1 space-y-2">
+                        <div className="h-4 bg-gray-200 dark:bg-gray-600 rounded w-1/4"></div>
+                        <div className="h-4 bg-gray-200 dark:bg-gray-600 rounded w-3/4"></div>
+                      </div>
+                    </div>
+                  </div>
                 ))}
-              </ul>
+              </div>
+            ) : comments.length === 0 ? (
+              <p className="text-sm text-gray-500 dark:text-gray-400 text-center py-4">
+                No comments yet. Be the first to comment!
+              </p>
+            ) : (
+              <div className="space-y-3 max-h-60 overflow-y-auto">
+                {comments.map((c) => (
+                  <div key={c.id} className="flex space-x-3">
+                    <div className="h-8 w-8 flex items-center justify-center rounded-full bg-gray-300 dark:bg-gray-600 text-white text-sm font-medium">
+                      {getInitials(c.authorName)}
+                    </div>
+                    <div className="flex-1 bg-gray-50 dark:bg-gray-700 rounded-lg p-3">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-sm font-medium text-gray-900 dark:text-white">
+                          {c.authorName}
+                        </span>
+                        <span className="text-xs text-gray-500 dark:text-gray-400">
+                          {formatDistanceToNow(new Date(c.createdAt), { addSuffix: true })}
+                        </span>
+                      </div>
+                      <p className="text-sm text-gray-700 dark:text-gray-200">
+                        {c.text}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
             )}
           </div>
         )}
       </div>
-    </div>
+    </article>
   );
 }

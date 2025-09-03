@@ -1,10 +1,9 @@
 import CommunityFeed from '@/components/creator/CommunityFeed';
-import PostForm from '@/components/creator/PostForm';
 import React from 'react';
 
 export default function CommunityPage() {
   return (
-    <main className="mx-auto max-w-4xl p-6 space-y-8">
+    <main className="max-w-7xl mx-auto p-6 space-y-8">
       <div className="text-center">
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
           Creator Community
@@ -14,7 +13,6 @@ export default function CommunityPage() {
         </p>
       </div>
 
-      <PostForm />
       <CommunityFeed />
     </main>
   );
