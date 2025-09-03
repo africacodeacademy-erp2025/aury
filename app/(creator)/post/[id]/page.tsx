@@ -3,7 +3,7 @@ import { getPostById } from '@/lib/actions/community.action';
 import PostCard from '@/components/creator/PostCard';
 
 export default async function PostDetailsPage({ params }: { params: { id: string } }) {
-  const { id } = params;
+  const { id } = await params;
   const result = await getPostById(id);
 
   if (!result.success || !result.post) {

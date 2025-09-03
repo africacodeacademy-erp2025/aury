@@ -2,9 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { getPosts } from '@/lib/actions/community.action';
-import MasonryGrid from './MansonryGrid';
-=======
-import MasonryGrid from './MasonryGrid';
+import MasonryGrid from './MansoryGrid';
 
 
 export default function CommunityFeed() {
