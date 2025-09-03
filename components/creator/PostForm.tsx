@@ -64,7 +64,9 @@ export default function PostForm({ onSuccess }: PostFormProps) {
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+
               What&apos;s on your mind?
+
             </label>
             <textarea
               {...form.register('content')}
