@@ -7,7 +7,6 @@ import { z } from 'zod';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Form } from '@/components/ui/form';
-import FormField from '@/components/FormField';
 import ImageUpload from './ImageUpload';
 import { createPost } from '@/lib/actions/community.action';
 
@@ -65,7 +64,9 @@ export default function PostForm({ onSuccess }: PostFormProps) {
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              What's on your mind?
+
+              What&apos;s on your mind?
+
             </label>
             <textarea
               {...form.register('content')}

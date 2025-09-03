@@ -26,7 +26,10 @@ export default function CreatorDashboardPage() {
             </div>
             <div className="flex justify-between">
               <span className="text-gray-600 dark:text-gray-400">Total Earnings</span>
-              <span className="font-medium text-green-600">$0.00</span>
+
+              <span className="font-medium text-green-600">R0.00</span>
+
+
             </div>
           </div>
         </div>

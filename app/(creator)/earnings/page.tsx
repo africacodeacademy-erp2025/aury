@@ -15,13 +15,13 @@ export default function EarningsPage() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700">
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Total Earnings</h3>
-          <p className="text-3xl font-bold text-green-600 mt-2">$0.00</p>
+          <p className="text-3xl font-bold text-green-600 mt-2">R0.00</p>
           <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">All time</p>
         </div>
         
         <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700">
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white">This Month</h3>
-          <p className="text-3xl font-bold text-blue-600 mt-2">$0.00</p>
+          <p className="text-3xl font-bold text-blue-600 mt-2">R0.00</p>
           <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">January 2025</p>
         </div>
         
