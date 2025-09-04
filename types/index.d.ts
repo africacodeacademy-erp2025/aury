@@ -2,7 +2,7 @@ interface User {
   name: string;
   email: string;
   id: string;
-  role: "creator" | "customer";
+  role: "creator" | "customer" | "craft-business";
 }
 
 interface SignUpParams {
@@ -10,7 +10,7 @@ interface SignUpParams {
   name: string;
   email: string;
   password: string;
-  role: "creator" | "customer";
+  role: "creator" | "customer" | "craft-business";
 }
 interface SignInParams {
   email: string;
@@ -83,4 +83,54 @@ interface AddCommentResult {
   success: boolean;
   message?: string;
   comment?: PostComment;
+}
+
+// Product Types
+interface Product {
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  originalPrice?: number | null;
+  category: string;
+  imageUrl?: string | null;
+  stock?: number;
+  materials?: string[];
+  difficulty?: 'beginner' | 'intermediate' | 'advanced';
+  tags?: string[];
+  sellerId: string;
+  sellerName: string;
+  sellerType: 'creator' | 'craft-business';
+  rating?: number;
+  reviewCount?: number;
+  salesCount?: number;
+  createdAt: string | null;
+  updatedAt: string | null;
+}
+
+interface CreateProductParams {
+  name: string;
+  description: string;
+  price: number;
+  originalPrice?: number;
+  category: string;
+  imageUrl?: string | null;
+  stock?: number;
+  materials?: string[];
+  difficulty?: 'beginner' | 'intermediate' | 'advanced';
+  tags?: string[];
+}
+
+interface ProductFilters {
+  category?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  sellerId?: string;
+  sortBy?: 'newest' | 'price_asc' | 'price_desc' | 'popular';
+}
+
+interface GetProductsResult {
+  success: boolean;
+  message?: string;
+  products?: Product[];
 }

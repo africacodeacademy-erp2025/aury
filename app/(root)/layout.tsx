@@ -8,6 +8,8 @@ const RootLayout = async ({ children }: { children: ReactNode }) => {
   if (!user) redirect("/sign-in");
   if (user?.role === "creator") {
     redirect("/community");
+  } else if (user?.role === "craft-business") {
+    redirect("/craft-business/dashboard");
   }
 
   return (

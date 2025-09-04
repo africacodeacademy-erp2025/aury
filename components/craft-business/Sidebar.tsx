@@ -6,7 +6,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { 
   Home, 
   Users, 
-  FileText, 
+  Package, 
   DollarSign, 
   Plus,
   Menu,
@@ -14,7 +14,7 @@ import {
   LogOut
 } from 'lucide-react';
 import { getCurrentUser, signOut } from '@/lib/actions/auth.action';
-import PostModal from './PostModal';
+import PostModal from '../creator/PostModal';
 
 interface NavItem {
   name: string;
@@ -23,13 +23,13 @@ interface NavItem {
 }
 
 const navItems: NavItem[] = [
-  { name: 'Dashboard', href: '/dashboard', icon: Home },
-  { name: 'Community', href: '/community', icon: Users },
-  { name: 'Patterns & Products', href: '/patterns', icon: FileText },
-  { name: 'Earnings', href: '/earnings', icon: DollarSign },
+  { name: 'Dashboard', href: '/craft-business/dashboard', icon: Home },
+  { name: 'Community', href: '/craft-business/community', icon: Users },
+  { name: 'My Products', href: '/craft-business/products', icon: Package },
+  { name: 'Earnings', href: '/craft-business/earnings', icon: DollarSign },
 ];
 
-export default function Sidebar() {
+export default function CraftBusinessSidebar() {
   const [user, setUser] = useState<User | null>(null);
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
@@ -55,7 +55,6 @@ export default function Sidebar() {
   const handleSignOut = async () => {
     await signOut();
     router.push("/sign-in");
-    // window.location.href = '/sign-in';
   };
 
   return (
@@ -96,7 +95,7 @@ export default function Sidebar() {
                     A
                   </div>
                   <span className="text-xl font-bold text-gray-900 dark:text-white">
-                    Aury Creator
+                    Aury Business
                   </span>
                 </div>
               )}
