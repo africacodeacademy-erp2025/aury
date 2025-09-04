@@ -7,6 +7,8 @@ const layout = async ({ children }: { children: ReactNode }) => {
 
   if (user?.role === "creator") {
     redirect("/community");
+  } else if (user?.role === "craft-business") {
+    redirect("/craft-business/dashboard");
   } else if (user?.role === "customer") {
     redirect("/");
   }

@@ -45,8 +45,6 @@ export default function HomePage() {
             </p>
           </div>
         </Link>
-  
-
 
         <Link href="/calculator" className="group">
           <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 hover:shadow-xl transition-all duration-300 hover-lift">
