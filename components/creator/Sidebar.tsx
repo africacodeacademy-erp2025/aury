@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { 
   Home, 
   Users, 
@@ -35,6 +35,7 @@ export default function Sidebar() {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [isPostModalOpen, setIsPostModalOpen] = useState(false);
   const pathname = usePathname();
+  const router = useRouter();
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -53,7 +54,8 @@ export default function Sidebar() {
 
   const handleSignOut = async () => {
     await signOut();
-    window.location.href = '/sign-in';
+    router.push("/sign-in");
+    // window.location.href = '/sign-in';
   };
 
   return (
