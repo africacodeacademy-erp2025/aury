@@ -82,7 +82,7 @@ export async function createProduct(params: CreateProductParams) {
 
 export async function getProducts(filters?: ProductFilters) {
   try {
-    let query = firebaseDb.collection('products');
+    let query: FirebaseFirestore.Query = firebaseDb.collection('products');
 
     // Apply filters
     if (filters?.category && filters.category !== 'All Categories') {
@@ -133,7 +133,9 @@ export async function getProducts(filters?: ProductFilters) {
         imageUrl: (data.imageUrl as string) || null,
         stock: (data.stock as number) || 0,
         materials: (data.materials as string[]) || [],
-        difficulty: (data.difficulty as string) || 'beginner',
+        difficulty: (['beginner', 'intermediate', 'advanced'].includes(data.difficulty as string) 
+          ? data.difficulty 
+          : 'beginner') as 'beginner' | 'intermediate' | 'advanced',
         tags: (data.tags as string[]) || [],
         sellerId: data.sellerId as string,
         sellerName: data.sellerName as string,
@@ -185,7 +187,9 @@ export async function getProductById(productId: string) {
       imageUrl: (data.imageUrl as string) || null,
       stock: (data.stock as number) || 0,
       materials: (data.materials as string[]) || [],
-      difficulty: (data.difficulty as string) || 'beginner',
+      difficulty: (['beginner', 'intermediate', 'advanced'].includes(data.difficulty as string)
+        ? (data.difficulty as 'beginner' | 'intermediate' | 'advanced')
+        : 'beginner'),
       tags: (data.tags as string[]) || [],
       sellerId: data.sellerId as string,
       sellerName: data.sellerName as string,

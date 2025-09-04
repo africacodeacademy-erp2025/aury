@@ -91,7 +91,7 @@ export default function CraftBusinessSidebar() {
             <div className="flex items-center justify-between">
               {!isCollapsed && (
                 <div className="flex items-center space-x-2">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-purple-500 text-white font-bold">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-500 text-white font-bold">
                     A
                   </div>
                   <span className="text-xl font-bold text-gray-900 dark:text-white">
@@ -114,7 +114,7 @@ export default function CraftBusinessSidebar() {
             <button
               onClick={() => setIsPostModalOpen(true)}
               className={`
-                w-full flex items-center justify-center gap-2 bg-purple-500 hover:bg-purple-600 
+                w-full flex items-center justify-center gap-2 bg-blue-500 hover:bg-blue-600 
                 text-white font-medium rounded-lg transition-colors duration-200
                 ${isCollapsed ? 'p-3' : 'px-4 py-3'}
               `}
@@ -139,7 +139,7 @@ export default function CraftBusinessSidebar() {
                   className={`
                     flex items-center gap-3 px-3 py-2 rounded-lg transition-colors duration-200
                     ${isActive 
-                      ? 'bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400' 
+                      ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400' 
                       : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800'
                     }
                     ${isCollapsed ? 'justify-center' : ''}
@@ -159,7 +159,7 @@ export default function CraftBusinessSidebar() {
               <div className="space-y-3">
                 {!isCollapsed && (
                   <div className="flex items-center space-x-3">
-                    <div className="h-10 w-10 flex items-center justify-center rounded-full bg-purple-500 text-white font-bold">
+                    <div className="h-10 w-10 flex items-center justify-center rounded-full bg-blue-500 text-white font-bold">
                       {getInitials(user.name || user.email || 'U')}
                     </div>
                     <div className="flex-1 min-w-0">

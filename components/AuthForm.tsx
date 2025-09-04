@@ -34,8 +34,8 @@ const authFormSchema = (type: FormType) => {
       message: "Password must be at least 6 characters long",
     }),
     role: type === "sign-up"
-      ? z.enum(["creator", "customer"])
-      : z.enum(["creator", "customer"]).optional(),
+      ? z.enum(["creator", "customer", "craft-business"])
+      : z.enum(["creator", "customer", "craft-business"]).optional(),
   });
 };
 
@@ -137,14 +137,16 @@ const AuthForm = ({ type }: { type: FormType }) => {
   ) : (
       <div className="card-border-custom border-t border-slate-200 lg:min-w-[566px]">
         <div className="flex flex-col gap-6 card py-14 px-10">
-          <div className="flex flex-row gap-2 justify-center">
-            <Image src="/coach.svg" alt="logo" width={38} height={32} />
+          <div className="flex flex-row gap-2 justify-center items-center">
+            <Image src="/aury-logo.png" alt="logo" width={50} height={50} />
             <h2 className="text-primary-200 dark:text-primary-100">
               Aury
             </h2>
           </div>
 
-          <h3>Some title here</h3>
+            <h3 className="text-xl font-semibold text-center">
+            {isSignIn ? "Sign In to Your Account" : "Create Your Account"}
+            </h3>
 
           <Form {...form}>
             <form
