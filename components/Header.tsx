@@ -1,9 +1,10 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect } from 'react';
-import Link from 'next/link';
-import { Menu, X } from 'lucide-react';
-import { getCurrentUser } from '@/lib/actions/auth.action';
+import React, { useState, useEffect } from "react";
+import Link from "next/link";
+import { LogOut, Menu, X } from "lucide-react";
+import { getCurrentUser, signOut } from "@/lib/actions/auth.action";
+import { useRouter } from "next/navigation";
 
 interface NavItem {
   name: string;
@@ -11,15 +12,17 @@ interface NavItem {
 }
 
 const navItems: NavItem[] = [
-  { name: 'Home', href: '/' },
-  { name: 'Price Calculator', href: '/calculator' },
-  { name: 'Pattern Generator', href: '/pattern-generator' },
-  { name: 'Marketplace', href: '/marketplace' },
+  { name: "Home", href: "/" },
+  { name: "Price Calculator", href: "/calculator" },
+  { name: "Pattern Generator", href: "/pattern-generator" },
+  { name: "Marketplace", href: "/marketplace" },
 ];
 
 export default function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [user, setUser] = useState<User | null>(null);
+
+  const router = useRouter();
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -35,9 +38,14 @@ export default function Header() {
 
   const getInitials = (name: string) => {
     return name
-      .split(' ')
+      .split(" ")
       .map((n) => n[0]?.toUpperCase())
-      .join('');
+      .join("");
+  };
+
+  const handleSignOut = async () => {
+    await signOut();
+    router.push("/sign-in");
   };
 
   return (
@@ -67,30 +75,42 @@ export default function Header() {
             ))}
           </nav>
 
-          {/* Auth Section */}
-          <div className="hidden lg:flex items-center space-x-4">
-            {!user ? (
-              <>
-                <Link
-                  href="/sign-in"
-                  className="text-gray-700 hover:text-blue-600 dark:text-gray-200 dark:hover:text-blue-400 font-medium"
-                >
-                  Sign In
-                </Link>
-                <Link
-                  href="/sign-up"
-                  className="rounded-full bg-blue-600 px-5 py-2.5 text-white font-medium hover:bg-blue-700"
-                >
-                  Get Started
-                </Link>
-              </>
-            ) : (
-              <div className="flex items-center">
-                <div className="h-9 w-9 flex items-center justify-center rounded-full bg-blue-600 text-white font-bold">
-                  {getInitials(user.name || user.email || 'U')}
+          <div className="flex">
+            {/* Auth Section */}
+            <div className="hidden lg:flex items-center space-x-4">
+              {!user ? (
+                <>
+                  <Link
+                    href="/sign-in"
+                    className="text-gray-700 hover:text-blue-600 dark:text-gray-200 dark:hover:text-blue-400 font-medium"
+                  >
+                    Sign In
+                  </Link>
+                  <Link
+                    href="/sign-up"
+                    className="rounded-full bg-blue-600 px-5 py-2.5 text-white font-medium hover:bg-blue-700"
+                  >
+                    Get Started
+                  </Link>
+                </>
+              ) : (
+                <div className="flex items-center">
+                  <div className="h-9 w-9 flex items-center justify-center rounded-full bg-blue-600 text-white font-bold">
+                    {getInitials(user.name || user.email || "U")}
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
+            </div>
+
+            <button
+              onClick={handleSignOut}
+              className="hidden lg:flex items-center gap-2 px-3 py-2 text-red-600 dark:text-red-400 
+                    hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors duration-200"
+              aria-label="Sign out"
+            >
+              <LogOut className="h-5 w-5" />
+              <span className="font-medium">Sign Out</span>
+            </button>
           </div>
 
           {/* Mobile Menu Button */}
@@ -98,7 +118,11 @@ export default function Header() {
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             className="lg:hidden p-2 rounded-md text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800"
           >
-            {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            {isMobileMenuOpen ? (
+              <X className="h-6 w-6" />
+            ) : (
+              <Menu className="h-6 w-6" />
+            )}
           </button>
         </div>
       </div>
@@ -136,11 +160,23 @@ export default function Header() {
                 </Link>
               </div>
             ) : (
-              <div className="flex justify-center mt-3">
-                <div className="h-10 w-10 flex items-center justify-center rounded-full bg-blue-500 text-white font-bold cursor-pointer">
-                  {getInitials(user.name || user.email || 'U')}
+              <>
+                <div className="flex mt-3 ml-3">
+                  <div className="h-10 w-10 flex items-center justify-center rounded-full bg-blue-500 text-white font-bold cursor-pointer">
+                    {getInitials(user.name || user.email || "U")}
+                  </div>
                 </div>
-              </div>
+
+                <button
+                  onClick={handleSignOut}
+                  className="flex items-center gap-2 px-3 py-2 text-red-600 dark:text-red-400 
+                    hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors duration-200"
+                  aria-label="Sign out"
+                >
+                  <LogOut className="h-5 w-5" />
+                  <span className="font-medium">Sign Out</span>
+                </button>
+              </>
             )}
           </div>
         </div>
