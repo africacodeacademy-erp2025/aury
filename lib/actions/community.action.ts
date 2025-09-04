@@ -16,10 +16,10 @@ export async function createPost(params: CreatePostParams) {
       };
     }
 
-    if (user.role !== 'creator') {
+    if (user.role !== 'creator' && user.role !== 'craft-business') {
       return {
         success: false,
-        message: 'Only creators can create posts',
+        message: 'Only creators and craft businesses can create posts',
       };
     }
 
@@ -70,10 +70,10 @@ export async function getPosts() {
       };
     }
 
-    if (user.role !== 'creator') {
+    if (user.role !== 'creator' && user.role !== 'craft-business') {
       return {
         success: false,
-        message: 'Only creators can view community posts',
+        message: 'Only creators and craft businesses can view community posts',
         posts: [],
       };
     }
@@ -281,7 +281,7 @@ export async function getPostById(postId: string): Promise<{ success: boolean; p
   try {
     const user = await getCurrentUser();
     if (!user) return { success: false, message: 'You must be logged in to view posts' };
-    if (user.role !== 'creator') return { success: false, message: 'Only creators can view community posts' };
+    if (user.role !== 'creator' && user.role !== 'craft-business') return { success: false, message: 'Only creators and craft businesses can view community posts' };
 
     const doc = await firebaseDb.collection('posts').doc(postId).get();
     if (!doc.exists) return { success: false, message: 'Post not found' };

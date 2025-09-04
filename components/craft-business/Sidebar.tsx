@@ -6,7 +6,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { 
   Home, 
   Users, 
-  FileText, 
+  Package, 
   DollarSign, 
   Plus,
   Menu,
@@ -14,7 +14,7 @@ import {
   LogOut
 } from 'lucide-react';
 import { getCurrentUser, signOut } from '@/lib/actions/auth.action';
-import PostModal from './PostModal';
+import PostModal from '../creator/PostModal';
 
 interface NavItem {
   name: string;
@@ -23,13 +23,13 @@ interface NavItem {
 }
 
 const navItems: NavItem[] = [
-  { name: 'Dashboard', href: '/dashboard', icon: Home },
-  { name: 'Community', href: '/community', icon: Users },
-  { name: 'Patterns & Products', href: '/patterns', icon: FileText },
-  { name: 'Earnings', href: '/earnings', icon: DollarSign },
+  { name: 'Dashboard', href: '/craft-business/dashboard', icon: Home },
+  { name: 'Community', href: '/craft-business/community', icon: Users },
+  { name: 'My Products', href: '/craft-business/products', icon: Package },
+  { name: 'Earnings', href: '/craft-business/earnings', icon: DollarSign },
 ];
 
-export default function Sidebar() {
+export default function CraftBusinessSidebar() {
   const [user, setUser] = useState<User | null>(null);
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
@@ -55,7 +55,6 @@ export default function Sidebar() {
   const handleSignOut = async () => {
     await signOut();
     router.push("/sign-in");
-    // window.location.href = '/sign-in';
   };
 
   return (
@@ -92,11 +91,11 @@ export default function Sidebar() {
             <div className="flex items-center justify-between">
               {!isCollapsed && (
                 <div className="flex items-center space-x-2">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-500 text-white font-bold">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-purple-500 text-white font-bold">
                     A
                   </div>
                   <span className="text-xl font-bold text-gray-900 dark:text-white">
-                    Aury Creator
+                    Aury Business
                   </span>
                 </div>
               )}
@@ -115,7 +114,7 @@ export default function Sidebar() {
             <button
               onClick={() => setIsPostModalOpen(true)}
               className={`
-                w-full flex items-center justify-center gap-2 bg-blue-500 hover:bg-blue-600 
+                w-full flex items-center justify-center gap-2 bg-purple-500 hover:bg-purple-600 
                 text-white font-medium rounded-lg transition-colors duration-200
                 ${isCollapsed ? 'p-3' : 'px-4 py-3'}
               `}
@@ -140,7 +139,7 @@ export default function Sidebar() {
                   className={`
                     flex items-center gap-3 px-3 py-2 rounded-lg transition-colors duration-200
                     ${isActive 
-                      ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400' 
+                      ? 'bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400' 
                       : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800'
                     }
                     ${isCollapsed ? 'justify-center' : ''}
@@ -160,7 +159,7 @@ export default function Sidebar() {
               <div className="space-y-3">
                 {!isCollapsed && (
                   <div className="flex items-center space-x-3">
-                    <div className="h-10 w-10 flex items-center justify-center rounded-full bg-blue-500 text-white font-bold">
+                    <div className="h-10 w-10 flex items-center justify-center rounded-full bg-purple-500 text-white font-bold">
                       {getInitials(user.name || user.email || 'U')}
                     </div>
                     <div className="flex-1 min-w-0">

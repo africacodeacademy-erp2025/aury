@@ -115,6 +115,8 @@ const AuthForm = ({ type }: { type: FormType }) => {
         toast.success("Signed In Successfully.");
         if (user?.role === "creator") {
           router.push("/dashboard");
+        } else if (user?.role === "craft-business") {
+          router.push("/craft-business/dashboard");
         } else {
           router.push("/");
         }
@@ -187,6 +189,7 @@ const AuthForm = ({ type }: { type: FormType }) => {
                       >
                         <option value="customer">Customer</option>
                         <option value="creator">Creator</option>
+                        <option value="craft-business">Craft Business</option>
                       </select>
                     </div>
                   )}
