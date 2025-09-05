@@ -44,9 +44,12 @@ export default function CraftBusinessEarningsPage() {
         <p className="text-gray-600 dark:text-gray-400">
           Add your first product to start earning from your craft business.
         </p>
-        <button className="mt-4 bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg font-medium transition-colors">
-          Add Product
-        </button>
+        <a 
+          href="/craft-business/products"
+          className="mt-4 inline-block bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg font-medium transition-colors"
+        >
+          Add Your First Product
+        </a>
       </div>
     </main>
   );

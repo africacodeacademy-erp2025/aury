@@ -44,9 +44,12 @@ export default function EarningsPage() {
         <p className="text-gray-600 dark:text-gray-400">
           Upload your first pattern to start earning from your crochet expertise.
         </p>
-        <button className="mt-4 bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg font-medium transition-colors">
-          Get Started
-        </button>
+        <a 
+          href="/patterns"
+          className="mt-4 inline-block bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg font-medium transition-colors"
+        >
+          Add Your First Product
+        </a>
       </div>
     </main>
   );
