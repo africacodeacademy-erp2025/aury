@@ -1,18 +1,32 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { formatDistanceToNow } from 'date-fns';
 import { addComment, getComments, toggleLike } from '@/lib/actions/community.action';
 import Image from 'next/image';
 import { Heart, MessageCircle, Share2, Copy, Check } from 'lucide-react';
 import { toast } from 'sonner';
 
+// ✅ Firebase
+import { firebaseDb, firebaseAuth } from '@/firebase/client';
+import { onAuthStateChanged } from 'firebase/auth';
+
 interface PostCardProps {
   post: Post;
 }
 
 export default function PostCard({ post }: PostCardProps) {
+  const [currentUser, setCurrentUser] = useState<any>(null);
+
+  // ✅ Auth listener
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(firebaseAuth, (user) => {
+      setCurrentUser(user);
+    });
+    return () => unsubscribe();
+  }, []);
+
   const [likesCount, setLikesCount] = useState(post.likesCount ?? 0);
   const [liked, setLiked] = useState(!!post.liked);
   const [showComments, setShowComments] = useState(false);
@@ -22,7 +36,27 @@ export default function PostCard({ post }: PostCardProps) {
   const [submittingComment, setSubmittingComment] = useState(false);
   const [showShareMenu, setShowShareMenu] = useState(false);
   const [copied, setCopied] = useState(false);
-  
+
+  // ✅ Follow state
+  const [isFollowing, setIsFollowing] = useState(false);
+
+  // Check if current user already follows this post author
+  useEffect(() => {
+    const checkFollowing = async () => {
+      if (!currentUser?.uid || !post?.authorId) return;
+
+      try {
+        const res = await fetch(`/api/checkFollowing?userId=${currentUser.uid}&authorId=${post.authorId}`);
+        const data = await res.json();
+        setIsFollowing(data.isFollowing);
+      } catch (err) {
+        console.error('Error checking following:', err);
+      }
+    };
+
+    checkFollowing();
+  }, [currentUser, post.authorId]);
+
   const getInitials = (name: string) => {
     return name
       .split(' ')
@@ -32,7 +66,6 @@ export default function PostCard({ post }: PostCardProps) {
 
   const formatTimestamp = (timestamp: any) => {
     try {
-      // Handle Firestore timestamp
       const date = timestamp?.toDate ? timestamp.toDate() : new Date(timestamp);
       return formatDistanceToNow(date, { addSuffix: true });
     } catch (error) {
@@ -44,24 +77,19 @@ export default function PostCard({ post }: PostCardProps) {
   const handleLike = async () => {
     const originalLiked = liked;
     const originalCount = likesCount;
-    
-    // Optimistic update
     setLiked(!liked);
     setLikesCount(liked ? likesCount - 1 : likesCount + 1);
-    
     try {
       const result = await toggleLike(post.id);
       if (result.success) {
         setLiked(!!result.liked);
         setLikesCount(result.likesCount ?? 0);
       } else {
-        // Revert on error
         setLiked(originalLiked);
         setLikesCount(originalCount);
         toast.error('Failed to update like');
       }
     } catch (error) {
-      // Revert on error
       setLiked(originalLiked);
       setLikesCount(originalCount);
       toast.error('Failed to update like');
@@ -71,7 +99,7 @@ export default function PostCard({ post }: PostCardProps) {
   const handleToggleComments = async () => {
     const nextShow = !showComments;
     setShowComments(nextShow);
-    
+
     if (nextShow && comments.length === 0) {
       setLoadingComments(true);
       try {
@@ -89,12 +117,12 @@ export default function PostCard({ post }: PostCardProps) {
 
   const handleAddComment = async () => {
     if (!commentText.trim()) return;
-    
+
     setSubmittingComment(true);
     try {
       const result = await addComment(post.id, commentText.trim());
       if (result.success && result.comment) {
-        setComments(prev => [result.comment!, ...prev]);
+        setComments((prev) => [result.comment!, ...prev]);
         setCommentText('');
         toast.success('Comment added!');
       } else {
@@ -109,7 +137,6 @@ export default function PostCard({ post }: PostCardProps) {
 
   const handleShare = async (type: 'copy' | 'twitter' | 'facebook') => {
     const url = `${window.location.origin}/post/${post.id}`;
-    
     switch (type) {
       case 'copy':
         try {
@@ -122,48 +149,89 @@ export default function PostCard({ post }: PostCardProps) {
         }
         break;
       case 'twitter':
-        window.open(`https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(post.content.slice(0, 100))}`, '_blank');
+        window.open(
+          `https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(
+            post.content.slice(0, 100)
+          )}`,
+          '_blank'
+        );
         break;
       case 'facebook':
-        window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`, '_blank');
+        window.open(
+          `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`,
+          '_blank'
+        );
         break;
     }
     setShowShareMenu(false);
   };
+
+  // ✅ Follow/unfollow using Cloud Function
+  const handleFollow = async () => {
+    if (!currentUser?.uid || !post?.authorId) return;
+
+    try {
+      const res = await fetch('/api/updateFollowStatus', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: currentUser.uid,
+          authorId: post.authorId,
+          follow: !isFollowing,
+        }),
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        setIsFollowing(!isFollowing);
+        toast.success(isFollowing ? `Unfollowed ${post.authorName}` : `Following ${post.authorName}`);
+      } else {
+        toast.error('Failed to update follow status');
+      }
+    } catch (err) {
+      console.error('Follow error:', err);
+      toast.error('Failed to update follow status');
+    }
+  };
+
   return (
     <article className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-xl transition-shadow duration-300">
       {/* Author Info */}
-      <div className="flex items-center space-x-3 p-4 border-b border-gray-100 dark:border-gray-700">
-        <div className="h-10 w-10 flex items-center justify-center rounded-full bg-blue-500 text-white font-bold">
-          {getInitials(post.authorName)}
+      <div className="flex items-center justify-between p-4 border-b border-gray-100 dark:border-gray-700">
+        <div className="flex items-center space-x-3">
+          <div className="h-10 w-10 flex items-center justify-center rounded-full bg-blue-500 text-white font-bold">
+            {getInitials(post.authorName)}
+          </div>
+          <div>
+            <h3 className="font-medium text-gray-900 dark:text-white">{post.authorName}</h3>
+            <p className="text-sm text-gray-500 dark:text-gray-400">{formatTimestamp(post.createdAt)}</p>
+          </div>
         </div>
-        <div>
-          <h3 className="font-medium text-gray-900 dark:text-white">
-            {post.authorName}
-          </h3>
-          <p className="text-sm text-gray-500 dark:text-gray-400">
-            {formatTimestamp(post.createdAt)}
-          </p>
-        </div>
+
+        {/* Follow button */}
+        {currentUser?.uid !== post.authorId && (
+          <button
+            onClick={handleFollow}
+            className={`px-3 py-1 rounded-lg text-sm font-medium border transition-colors duration-200
+              ${isFollowing
+                ? 'bg-blue-500 text-white border-blue-500'
+                : 'text-blue-500 border-blue-500 hover:bg-blue-500 hover:text-white'
+              }`}
+          >
+            {isFollowing ? 'Following' : 'Follow'}
+          </button>
+        )}
       </div>
 
       {/* Post Content */}
       <div className="p-4 space-y-4">
-        <p className="text-gray-800 dark:text-gray-200 leading-relaxed">
-          {post.content}
-        </p>
+        <p className="text-gray-800 dark:text-gray-200 leading-relaxed">{post.content}</p>
       </div>
 
       {/* Post Image */}
       {post.imageUrl && (
         <div className="relative">
-          <Image
-            src={post.imageUrl}
-            alt="Post image"
-            width={600}
-            height={400}
-            className="w-full h-auto object-cover"
-          />
+          <Image src={post.imageUrl} alt="Post image" width={600} height={400} className="w-full h-auto object-cover" />
         </div>
       )}
 
@@ -174,13 +242,11 @@ export default function PostCard({ post }: PostCardProps) {
             {/* Like Button */}
             <button
               onClick={handleLike}
-              className={`
-                flex items-center gap-2 px-3 py-2 rounded-lg transition-all duration-200
-                ${liked 
-                  ? 'text-red-500 bg-red-50 dark:bg-red-900/20' 
+              className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-all duration-200
+                ${liked
+                  ? 'text-red-500 bg-red-50 dark:bg-red-900/20'
                   : 'text-gray-600 dark:text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20'
-                }
-              `}
+                }`}
               aria-label={liked ? 'Unlike post' : 'Like post'}
             >
               <Heart className={`h-5 w-5 ${liked ? 'fill-current' : ''}`} />
@@ -190,13 +256,11 @@ export default function PostCard({ post }: PostCardProps) {
             {/* Comment Button */}
             <button
               onClick={handleToggleComments}
-              className={`
-                flex items-center gap-2 px-3 py-2 rounded-lg transition-all duration-200
-                ${showComments 
-                  ? 'text-blue-500 bg-blue-50 dark:bg-blue-900/20' 
+              className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-all duration-200
+                ${showComments
+                  ? 'text-blue-500 bg-blue-50 dark:bg-blue-900/20'
                   : 'text-gray-600 dark:text-gray-400 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20'
-                }
-              `}
+                }`}
               aria-label="Toggle comments"
             >
               <MessageCircle className="h-5 w-5" />
@@ -215,7 +279,7 @@ export default function PostCard({ post }: PostCardProps) {
             >
               <Share2 className="h-5 w-5" />
             </button>
-            
+
             {/* Share Menu */}
             {showShareMenu && (
               <div className="absolute right-0 top-full mt-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-2 z-10 min-w-[160px]">
@@ -231,7 +295,7 @@ export default function PostCard({ post }: PostCardProps) {
                   className="w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
                 >
                   <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
                   </svg>
                   Share on X
                 </button>
@@ -240,7 +304,7 @@ export default function PostCard({ post }: PostCardProps) {
                   className="w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
                 >
                   <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                    <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
                   </svg>
                   Share on Facebook
                 </button>
@@ -301,16 +365,12 @@ export default function PostCard({ post }: PostCardProps) {
                     </div>
                     <div className="flex-1 bg-gray-50 dark:bg-gray-700 rounded-lg p-3">
                       <div className="flex items-center justify-between mb-1">
-                        <span className="text-sm font-medium text-gray-900 dark:text-white">
-                          {c.authorName}
-                        </span>
+                        <span className="text-sm font-medium text-gray-900 dark:text-white">{c.authorName}</span>
                         <span className="text-xs text-gray-500 dark:text-gray-400">
                           {formatDistanceToNow(new Date(c.createdAt), { addSuffix: true })}
                         </span>
                       </div>
-                      <p className="text-sm text-gray-700 dark:text-gray-200">
-                        {c.text}
-                      </p>
+                      <p className="text-sm text-gray-700 dark:text-gray-200">{c.text}</p>
                     </div>
                   </div>
                 ))}
