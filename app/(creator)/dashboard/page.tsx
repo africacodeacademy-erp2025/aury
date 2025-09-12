@@ -1,9 +1,11 @@
+"use client";
+
 import ProductModal from "@/components/creator/ProductModal";
 import { Plus } from "lucide-react";
-import React from "react";
+import React, { useState } from "react";
 
 export default function CreatorDashboardPage() {
-  const [isProductModalOpen, setIsProductModalOpen] = React.useState(false);
+  const [isProductModalOpen, setIsProductModalOpen] = useState(false);
 
   return (
     <>
