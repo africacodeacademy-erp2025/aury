@@ -26,9 +26,10 @@ const ProductSchema = z.object({
 type ProductFormData = z.infer<typeof ProductSchema>;
 
 interface ProductFormProps {
-  onSuccess?: () => void;
+  onSuccess?: (newPost: any) => void; 
   onCancel?: () => void;
 }
+
 
 const categories = [
   'Crochet Patterns',
@@ -117,7 +118,8 @@ export default function ProductForm({ onSuccess, onCancel }: ProductFormProps) {
         toast.success('Product created successfully!');
         form.reset();
         setUploadedImage(null);
-        onSuccess?.();
+
+        onSuccess?.(result.productId || data);
       } else {
         toast.error(result.message || 'Failed to create product');
       }
