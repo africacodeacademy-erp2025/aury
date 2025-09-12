@@ -54,7 +54,7 @@ export default function Header() {
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
           <Link href="/" className="flex items-center space-x-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-500 text-white font-bold">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary-600 text-white font-bold">
               A
             </div>
             <span className="text-xl font-bold text-gray-900 dark:text-white">
@@ -68,7 +68,7 @@ export default function Header() {
               <Link
                 key={item.name}
                 href={item.href}
-                className="text-gray-700 hover:text-blue-500 dark:text-gray-200 dark:hover:text-blue-400 font-medium"
+                className="text-gray-700 hover:text-primary-600 dark:text-gray-200 font-medium"
               >
                 {item.name}
               </Link>
@@ -82,20 +82,20 @@ export default function Header() {
                 <>
                   <Link
                     href="/sign-in"
-                    className="text-gray-700 hover:text-blue-600 dark:text-gray-200 dark:hover:text-blue-400 font-medium"
+                    className="text-gray-700 hover:text-primary-600 dark:text-gray-200 dark:hover:text-blue-400 font-medium"
                   >
                     Sign In
                   </Link>
                   <Link
                     href="/sign-up"
-                    className="rounded-full bg-blue-600 px-5 py-2.5 text-white font-medium hover:bg-blue-700"
+                    className="rounded-full bg-primary-600 px-5 py-2.5 text-white font-medium hover:bg-blue-700"
                   >
                     Get Started
                   </Link>
                 </>
               ) : (
                 <div className="flex items-center">
-                  <div className="h-9 w-9 flex items-center justify-center rounded-full bg-blue-600 text-white font-bold">
+                  <div className="h-9 w-9 flex items-center justify-center rounded-full bg-primary-600 text-white font-bold">
                     {getInitials(user.name || user.email || "U")}
                   </div>
                 </div>
@@ -153,7 +153,7 @@ export default function Header() {
                 </Link>
                 <Link
                   href="/sign-up"
-                  className="block text-center rounded-md bg-blue-600 py-2.5 text-white hover:bg-blue-700"
+                  className="block text-center rounded-md bg-primary-600 py-2.5 text-white hover:bg-blue-700"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   Get Started
@@ -162,7 +162,7 @@ export default function Header() {
             ) : (
               <>
                 <div className="flex mt-3 ml-3">
-                  <div className="h-10 w-10 flex items-center justify-center rounded-full bg-blue-500 text-white font-bold cursor-pointer">
+                  <div className="h-10 w-10 flex items-center justify-center rounded-full bg-primary-600 text-white font-bold cursor-pointer">
                     {getInitials(user.name || user.email || "U")}
                   </div>
                 </div>
