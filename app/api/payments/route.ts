@@ -13,7 +13,9 @@ export async function GET() {
 export async function POST(request: Request) {
     try {
         const data = await request.json();
-        const product = await fetch(`http://localhost:3000/api/products/${data.productId}`).then(res => res.json());
+        
+        const baseUrl = process.env.BASE_URL || request.headers.get("origin");
+        const product = await fetch(`${baseUrl}/api/products/${data.productId}`).then(res => res.json());
         console.log("Product in payment route:", product);
         if (!product) {
             return NextResponse.json({ error: "Product not found" }, { status: 404 });

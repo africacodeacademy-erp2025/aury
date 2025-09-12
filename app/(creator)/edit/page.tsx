@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { db } from "@/lib/firebase";
+import { firebaseDb } from "@/firebase/client";
 import { useAuth } from "@/lib/useAuth"; 
 import { doc, setDoc } from "firebase/firestore";
 
@@ -14,7 +14,7 @@ export default function EditCreatorProfile() {
   const handleSave = async () => {
     if (!currentUser) return;
     await setDoc(
-      doc(db, "users", "creators", currentUser.uid),
+      doc(firebaseDb, "users", "creators", currentUser.uid),
       { username, bio, avatar, updatedAt: new Date() },
       { merge: true }
     );

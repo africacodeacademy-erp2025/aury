@@ -1,11 +1,12 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import React, { useState, useEffect } from "react";
 import ProductModal from "@/components/creator/ProductModal";
-import { Plus, Heart, MessageCircle, Share, User, Camera, TrendingUp, Users, DollarSign, MoreHorizontal } from "lucide-react";
-import { auth, db } from "@/lib/firebase";
+import { Plus, Camera, TrendingUp, Users, DollarSign } from "lucide-react";
 import { onAuthStateChanged } from "firebase/auth";
 import { collection, getDocs, query, orderBy, limit } from "firebase/firestore";
+import { firebaseAuth, firebaseDb } from "@/firebase/client";
 
 interface Post {
   id: string;
@@ -39,7 +40,7 @@ export default function CreatorDashboardPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+    const unsubscribe = onAuthStateChanged(firebaseAuth, async (user) => {
       if (!user) {
         setLoading(false);
         return;
@@ -49,17 +50,17 @@ export default function CreatorDashboardPage() {
 
       try {
         // Fetch posts
-        const postsSnap = await getDocs(query(collection(db, "users", user.uid, "posts"), orderBy("createdAt", "desc"), limit(10)));
+        const postsSnap = await getDocs(query(collection(firebaseDb, "users", user.uid, "posts"), orderBy("createdAt", "desc"), limit(10)));
         const postsData = postsSnap.docs.map((doc) => ({ id: doc.id, ...doc.data() })) as Post[];
         setPosts(postsData);
 
         // Fetch items/products
-        const itemsSnap = await getDocs(query(collection(db, "users", user.uid, "items"), orderBy("createdAt", "desc")));
+        const itemsSnap = await getDocs(query(collection(firebaseDb, "users", user.uid, "items"), orderBy("createdAt", "desc")));
         const itemsData = itemsSnap.docs.map((doc) => ({ id: doc.id, ...doc.data() })) as Item[];
         setItems(itemsData);
 
         // Fetch followers
-        const followersSnap = await getDocs(collection(db, "users", user.uid, "followers"));
+        const followersSnap = await getDocs(collection(firebaseDb, "users", user.uid, "followers"));
         const followersData = followersSnap.docs.map((doc) => ({ id: doc.id, ...doc.data() })) as Follower[];
         setFollowers(followersData);
       } catch (err) {
