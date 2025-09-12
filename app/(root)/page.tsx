@@ -1,6 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
-import { ShoppingBag, Calculator, Sparkles, Users } from 'lucide-react';
+import { ShoppingBag, Users } from 'lucide-react';
 
 export default function HomePage() {
   return (
@@ -21,17 +21,11 @@ export default function HomePage() {
           >
             Explore Marketplace
           </Link>
-          <Link
-            href="/calculator"
-            className="border border-blue-600 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 px-8 py-4 rounded-lg font-medium transition-colors"
-          >
-            Price Calculator
-          </Link>
         </div>
       </section>
 
       {/* Features Grid */}
-      <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <Link href="/marketplace" className="group">
           <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 hover:shadow-xl transition-all duration-300 hover-lift">
             <div className="p-3 bg-blue-100 dark:bg-blue-900/20 rounded-lg w-fit mb-4">
@@ -46,30 +40,6 @@ export default function HomePage() {
           </div>
         </Link>
 
-        <Link href="/calculator" className="group">
-          <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 hover:shadow-xl transition-all duration-300 hover-lift">
-            <div className="p-3 bg-green-100 dark:bg-green-900/20 rounded-lg w-fit mb-4">
-              <Calculator className="h-6 w-6 text-green-600" />
-            </div>
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-              Price Calculator
-            </h3>
-            </div>
-            </Link>
-        <Link href="/pattern-generator" className="group">
-          <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 hover:shadow-xl transition-all duration-300 hover-lift">
-            <div className="p-3 bg-purple-100 dark:bg-purple-900/20 rounded-lg w-fit mb-4">
-              <Sparkles className="h-6 w-6 text-purple-600" />
-            </div>
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-              Pattern Generator
-            </h3>
-            <p className="text-gray-600 dark:text-gray-400 text-sm">
-              Create custom crochet patterns with our AI-powered pattern generation tool.
-            </p>
-          </div>
-        </Link>
-            {/* <p className="text-gray-600 dark:text-gray-400 text-sm"> */}
         <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700">
           <div className="p-3 bg-orange-100 dark:bg-orange-900/20 rounded-lg w-fit mb-4">
             <Users className="h-6 w-6 text-orange-600" />
@@ -82,7 +52,7 @@ export default function HomePage() {
           </p>
         </div>
       </section>
-              Calculate fair pricing for your handmade items based on materials, time, and skill level.
+
       {/* Featured Products Preview */}
       <section className="space-y-6">
         <div className="text-center">

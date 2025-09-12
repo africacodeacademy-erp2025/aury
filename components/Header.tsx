@@ -14,8 +14,6 @@ interface NavItem {
 const navItems: NavItem[] = [
   { name: "Home", href: "/" },
   { name: "Marketplace", href: "/marketplace" },
-  { name: "Price Calculator", href: "/calculator" },
-  { name: "Pattern Generator", href: "/pattern-generator" },
 ];
 
 export default function Header() {
