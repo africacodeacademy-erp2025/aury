@@ -13,6 +13,8 @@
 
   --color-primary-100: #cbfbf1;
   --color-primary-200: #2B7FFF;
+  --color-primary-500: #155dfc;
+  --color-primary-600: #1B4B96;
 
   --color-light-100: #62748e;
   --color-light-400: #6870a6;
@@ -212,7 +214,7 @@
     }
 
     .btn {
-      @apply !w-full !bg-primary-200 !text-white dark:!text-dark-100 hover:!bg-primary-200/80 !rounded-full !min-h-10 !font-bold !px-5 cursor-pointer;
+      @apply !w-full !bg-primary-600 !text-white dark:!text-dark-100 hover:!bg-blue-800 !rounded-full !min-h-10 !font-bold !px-5 cursor-pointer;
     }
   }
 
