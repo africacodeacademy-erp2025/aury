@@ -1,19 +1,5 @@
 import { NextResponse } from "next/server";
-import { getFirestore } from "firebase-admin/firestore";
-import { initializeApp, getApps, cert } from "firebase-admin/app";
-
-// Initialize Admin once
-if (!getApps().length) {
-  initializeApp({
-    credential: cert({
-      projectId: process.env.FIREBASE_PROJECT_ID,
-      clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-      privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, "\n"),
-    }),
-  });
-}
-
-const db = getFirestore();
+import { firebaseDb } from "@/firebase/admin";
 
 export async function GET(req: Request) {
   try {
@@ -22,25 +8,22 @@ export async function GET(req: Request) {
     const authorId = searchParams.get("authorId");
 
     if (!userId || !authorId) {
-      return NextResponse.json(
-        { error: "Missing parameters" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Missing parameters" }, { status: 400 });
     }
 
-    const followDoc = await db
-      .collection("followers")
-      .doc(userId)
-      .collection("following")
-      .doc(authorId)
-      .get();
+    const userRef = firebaseDb.collection("users").doc(userId);
+    const userSnap = await userRef.get();
 
-    return NextResponse.json({ isFollowing: followDoc.exists });
+    if (!userSnap.exists) {
+      return NextResponse.json({ isFollowing: false });
+    }
+
+    const userData = userSnap.data();
+    const isFollowing = userData?.following?.includes(authorId);
+
+    return NextResponse.json({ isFollowing: !!isFollowing });
   } catch (error) {
     console.error("Error in checkFollowing:", error);
-    return NextResponse.json(
-      { error: "Failed to check follow status" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
