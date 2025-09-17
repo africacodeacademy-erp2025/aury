@@ -24,15 +24,18 @@ const PurchaseModal = ({ productId }: { productId: string }) => {
     process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!
   );
 
+  console.log("Arrived here");
   const fetchClientSecret = useCallback(async () => {
+    console.log("Arrived in function");
     try {
-      const response = await fetch("api/payments", {
+      const response = await fetch("/api/payments", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ productId }),
       });
+      console.log("Arrived in function after fetch");
 
       const data = await response.json();
       if (data?.error) {
@@ -50,7 +53,7 @@ const PurchaseModal = ({ productId }: { productId: string }) => {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button className="bg-primary-600">Purchase</Button>
+        <Button className="bg-primary-600 cursor-pointer">Purchase</Button>
       </DialogTrigger>
 
       <DialogContent className="my-5 py-6 px-4 sm:px-6 lg:px-10 max-h-[95vh] xl:max-w-screen-xl overflow-y-scroll">

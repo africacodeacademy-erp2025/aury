@@ -1,7 +1,14 @@
 import React from "react";
-import { Card, CardDescription, CardFooter, CardHeader, CardTitle } from "../ui/card";
+import {
+  Card,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "../ui/card";
 import Image from "next/image";
-import PurchaseModal from "./PurchaseModal";
+import Link from "next/link";
+import { Button } from "../ui/button";
 
 const ProductCard = ({ product }: { product: Product }) => {
   return (
@@ -24,8 +31,12 @@ const ProductCard = ({ product }: { product: Product }) => {
       </CardHeader>
 
       <CardFooter className="flex justify-between">
-        <span className="text-xl text-primary-600 font-medium">R {product.price}</span>
-        <PurchaseModal productId={product.id} />
+        <span className="text-xl text-primary-600 font-medium">
+          R {product.price}
+        </span>
+        <Button className="bg-primary-600" asChild>
+          <Link href={`/marketplace/${product.id}`}>Purchase</Link>
+        </Button>
       </CardFooter>
     </Card>
   );
