@@ -1,7 +1,8 @@
 import { getApp, getApps, initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
-// import { getAnalytics } from "firebase/analytics";
+import { getStorage } from "firebase/storage";
+
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -10,14 +11,14 @@ const firebaseConfig = {
   storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
   messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
-  measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID
+  measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
 };
 
-// Initialize Firebase
 // Prevent re-initializing on hot reload
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 
+// ✅ Named exports (recommended)
 export const firebaseAuth = getAuth(app);
 export const firebaseDb = getFirestore(app);
-
-// const analytics = getAnalytics(app);
+export const firebaseStorage = getStorage(app);
+export { app }; // <- add this so you can still import { app }

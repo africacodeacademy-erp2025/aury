@@ -2,11 +2,101 @@
 
 import ProductModal from "@/components/creator/ProductModal";
 import { Plus, Heart, MessageCircle, Share, Bookmark, MoreHorizontal, User, Camera, TrendingUp, Users, DollarSign, Grid3X3 } from "lucide-react";
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { onAuthStateChanged } from "firebase/auth";
+import { firebaseAuth, firebaseDb } from "@/firebase/client";
+import { doc, getDoc, setDoc } from "firebase/firestore";
+import { useRouter } from "next/navigation";
 
 export default function CreatorDashboardPage() {
-  const [isProductModalOpen, setIsProductModalOpen] = React.useState(false);
-  const [activeTab, setActiveTab] = React.useState('posts'); 
+  const router = useRouter();
+
+  const [isProductModalOpen, setIsProductModalOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState("posts");
+
+  // Profile state
+  const [user, setUser] = useState<any>(null);
+  const [userId, setUserId] = useState<string | null>(null);
+  const [loadingProfile, setLoadingProfile] = useState(true);
+  const [savingProfile, setSavingProfile] = useState(false);
+  const [formData, setFormData] = useState({
+    name: "",
+    bio: "",
+    contact: "",
+    logoUrl: "",
+  });
+
+  // Dashboard data
+  const [postsCount, setPostsCount] = useState(0);
+  const [followersCount, setFollowersCount] = useState(0);
+  const [patternsCount, setPatternsCount] = useState(0);
+  const [earnings, setEarnings] = useState("R0.00");
+  const [storiesCount, setStoriesCount] = useState(0);
+
+  // Load profile and stats
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(firebaseAuth, async (authUser) => {
+      if (!authUser) {
+        setLoadingProfile(false);
+        return;
+      }
+      setUser(authUser);
+      setUserId(authUser.uid);
+
+      try {
+        // Fetch profile
+        const userRef = doc(firebaseDb, "creators", authUser.uid);
+        const snap = await getDoc(userRef);
+        if (snap.exists()) setFormData(snap.data() as any);
+
+        // Fetch dashboard data (counts only)
+        const postsRes = await fetch(`/api/${authUser.uid}/posts`);
+        const itemsRes = await fetch(`/api/${authUser.uid}/items`);
+        const followersRes = await fetch(`/api/${authUser.uid}/followers`);
+
+        if (postsRes.ok) setPostsCount((await postsRes.json()).length);
+        if (itemsRes.ok) setPatternsCount((await itemsRes.json()).length);
+        if (followersRes.ok) setFollowersCount((await followersRes.json()).length);
+
+        // Placeholder: earnings & stories
+        setEarnings("R0.00");
+        setStoriesCount(0);
+      } catch (err) {
+        console.error("Error loading profile/dashboard data:", err);
+      } finally {
+        setLoadingProfile(false);
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  const handleProfileChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleProfileSave = async () => {
+    if (!user) return;
+    setSavingProfile(true);
+    try {
+      const userRef = doc(firebaseDb, "creators", user.uid);
+      await setDoc(userRef, formData, { merge: true });
+      alert("Profile updated successfully!");
+    } catch (err) {
+      console.error("Failed to save profile:", err);
+      alert("Error saving profile");
+    } finally {
+      setSavingProfile(false);
+    }
+  };
+
+  if (loadingProfile) {
+    return (
+      <div className="flex justify-center items-center h-64 text-gray-500">
+        Loading dashboard...
+      </div>
+    );
+  }
 
   return (
     <>
@@ -25,50 +115,68 @@ export default function CreatorDashboardPage() {
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
           <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700">
             <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <TrendingUp className="h-6 w-6 sm:h-8 sm:w-8 text-blue-500" />
-              </div>
+              <TrendingUp className="h-6 w-6 sm:h-8 sm:w-8 text-blue-500" />
               <div className="ml-3 sm:ml-4">
                 <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white">
                   Total Patterns
                 </h3>
-                <p className="text-2xl sm:text-3xl font-bold text-blue-500">0</p>
-                <p className="text-xs sm:text-sm text-gray-500">No patterns yet</p>
+                <p className="text-2xl sm:text-3xl font-bold text-blue-500">{patternsCount}</p>
+                <p className="text-xs sm:text-sm text-gray-500">Manage your designs</p>
               </div>
             </div>
           </div>
 
           <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700">
             <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <Users className="h-6 w-6 sm:h-8 sm:w-8 text-purple-500" />
-              </div>
+              <Users className="h-6 w-6 sm:h-8 sm:w-8 text-purple-500" />
               <div className="ml-3 sm:ml-4">
                 <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white">
                   Followers
                 </h3>
-                <p className="text-2xl sm:text-3xl font-bold text-purple-500">0</p>
-                <p className="text-xs sm:text-sm text-gray-500">Start building your audience</p>
+                <p className="text-2xl sm:text-3xl font-bold text-purple-500">{followersCount}</p>
+                <p className="text-xs sm:text-sm text-gray-500">Your audience</p>
               </div>
             </div>
           </div>
 
           <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700">
             <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <DollarSign className="h-6 w-6 sm:h-8 sm:w-8 text-green-500" />
-              </div>
+              <DollarSign className="h-6 w-6 sm:h-8 sm:w-8 text-green-500" />
               <div className="ml-3 sm:ml-4">
                 <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white">
                   Total Earnings
                 </h3>
-                <p className="text-2xl sm:text-3xl font-bold text-green-500">R0.00</p>
+                <p className="text-2xl sm:text-3xl font-bold text-green-500">{earnings}</p>
                 <p className="text-xs sm:text-sm text-gray-500">Ready to earn</p>
               </div>
             </div>
           </div>
         </div>
 
+        {/* === EDIT PROFILE BUTTON SECTION === */}
+        <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 mt-6 flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <div className="w-20 h-20 rounded-full bg-gray-200 dark:bg-gray-700 overflow-hidden flex items-center justify-center">
+              {formData.logoUrl ? (
+                <img src={formData.logoUrl} alt="Logo" className="w-full h-full object-cover" />
+              ) : (
+                <Camera className="text-gray-500" />
+              )}
+            </div>
+            <div>
+              <p className="font-semibold text-gray-900 dark:text-white text-lg">{formData.name || "Your Name"}</p>
+              <p className="text-gray-500 dark:text-gray-300">{formData.contact || "Contact Info"}</p>
+            </div>
+          </div>
+          <button
+            onClick={() => router.push("/profile/edit")}
+            className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200"
+          >
+            Edit Profile
+          </button>
+        </div>
+
+        {/* === ORIGINAL DASHBOARD SECTIONS START === */}
         {/* Stories Section */}
         <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700">
           <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white mb-4">
@@ -90,8 +198,7 @@ export default function CreatorDashboardPage() {
                 Your Story
               </span>
             </div>
-            
-            {/* Empty state for stories */}
+
             <div className="flex items-center justify-center flex-1 min-h-[80px]">
               <p className="text-sm text-gray-500 dark:text-gray-400 text-center">
                 Connect with other creators to see their stories here
@@ -104,11 +211,11 @@ export default function CreatorDashboardPage() {
         <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700">
           <div className="border-b border-gray-200 dark:border-gray-700">
             <div className="flex">
-              <button 
+              <button
                 onClick={() => setActiveTab('posts')}
                 className={`flex-1 py-3 flex items-center justify-center gap-2 border-b-2 transition-colors ${
-                  activeTab === 'posts' 
-                    ? 'border-gray-900 dark:border-white text-gray-900 dark:text-white' 
+                  activeTab === 'posts'
+                    ? 'border-gray-900 dark:border-white text-gray-900 dark:text-white'
                     : 'border-transparent text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'
                 }`}
               >
@@ -125,11 +232,11 @@ export default function CreatorDashboardPage() {
                 </div>
                 <span className="text-sm font-medium">POSTS</span>
               </button>
-              <button 
+              <button
                 onClick={() => setActiveTab('forsale')}
                 className={`flex-1 py-3 flex items-center justify-center gap-2 border-b-2 transition-colors ${
-                  activeTab === 'forsale' 
-                    ? 'border-gray-900 dark:border-white text-gray-900 dark:text-white' 
+                  activeTab === 'forsale'
+                    ? 'border-gray-900 dark:border-white text-gray-900 dark:text-white'
                     : 'border-transparent text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'
                 }`}
               >
@@ -138,11 +245,10 @@ export default function CreatorDashboardPage() {
               </button>
             </div>
           </div>
-          
+
           {/* Content based on active tab */}
           <div className="p-4 sm:p-6">
             {activeTab === 'posts' ? (
-              /* Posts Empty State */
               <div className="flex flex-col items-center justify-center py-12 sm:py-20 px-4">
                 <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full border-2 border-gray-300 dark:border-gray-600 flex items-center justify-center mb-4">
                   <Camera className="h-8 w-8 sm:h-10 sm:w-10 text-gray-400" />
@@ -161,7 +267,6 @@ export default function CreatorDashboardPage() {
                 </button>
               </div>
             ) : (
-              /* For Sale Empty State */
               <div className="flex flex-col items-center justify-center py-12 sm:py-20 px-4">
                 <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full border-2 border-gray-300 dark:border-gray-600 flex items-center justify-center mb-4">
                   <DollarSign className="h-8 w-8 sm:h-10 sm:w-10 text-gray-400" />
@@ -183,20 +288,8 @@ export default function CreatorDashboardPage() {
           </div>
         </div>
 
-        {/* Main Content Grid - Only show when there's content */}
+        {/* Main Content Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Recent Activity Feed - Hidden until there's content */}
-          <div className="lg:col-span-2 hidden">
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700">
-              <div className="p-4 sm:p-6 border-b border-gray-200 dark:border-gray-700">
-                <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white">
-                  Recent Posts
-                </h3>
-              </div>
-              {/* Content should appear here when posts are added */}
-            </div>
-          </div>
-
           {/* Sidebar */}
           <div className="lg:col-span-3 xl:col-span-1 space-y-6">
             {/* Quick Actions */}
@@ -257,10 +350,10 @@ export default function CreatorDashboardPage() {
                   </div>
                   <div>
                     <p className="font-medium text-sm text-gray-900 dark:text-white">
-                      Start earning from your craft
+                      Start earning
                     </p>
                     <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
-                      Set prices for your patterns and tutorials
+                      Sell your patterns and grow your income
                     </p>
                   </div>
                 </div>
@@ -268,13 +361,13 @@ export default function CreatorDashboardPage() {
             </div>
           </div>
         </div>
-      </main>
 
-      <ProductModal
-        isOpen={isProductModalOpen}
-        onClose={() => setIsProductModalOpen(false)}
-      />
+        {/* Product Modal */}
+        <ProductModal
+          isOpen={isProductModalOpen}
+          onClose={() => setIsProductModalOpen(false)}
+        />
+      </main>
     </>
   );
 }
-

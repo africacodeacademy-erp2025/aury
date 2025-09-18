@@ -1,114 +1,106 @@
-interface User {
+// types/index.d.ts
+// Global type declarations for the project
+// ✅ Converted to a module for proper imports
+
+// -------------------
+// User & Auth
+// -------------------
+export interface User {
   name: string;
   email: string;
   id: string;
   role: "creator" | "customer" | "craft-business";
 }
 
-interface SignUpParams {
+export interface SignUpParams {
   uid: string;
   name: string;
   email: string;
   password: string;
   role: "creator" | "customer" | "craft-business";
 }
-interface SignInParams {
+
+export interface SignInParams {
   email: string;
   idToken: string;
 }
 
-type FormType = "sign-up" | "sign-in";
+export type FormType = "sign-up" | "sign-in";
 
-interface Post {
+// -------------------
+// Post Types
+// -------------------
+export interface Post {
   id: string;
   content: string;
   imageUrl?: string | null;
   authorId: string;
   authorName: string;
   authorEmail: string;
-  createdAt: string | null; // ISO string serialized from Firestore Timestamp
-  updatedAt: string | null; // ISO string serialized from Firestore Timestamp
+  createdAt: string | null;
+  updatedAt: string | null;
   likesCount?: number;
   commentsCount?: number;
   liked?: boolean;
 }
 
-interface CreatePostParams {
+export interface CreatePostParams {
   content: string;
   imageUrl?: string | null;
 }
 
-interface CreatePostResult {
+export interface CreatePostResult {
   success: boolean;
   message?: string;
   postId?: string;
 }
 
-interface GetPostsResult {
+export interface GetPostsResult {
   success: boolean;
   message?: string;
   posts?: Post[];
 }
 
-interface UploadImageResult {
+export interface UploadImageResult {
   success: boolean;
   message?: string;
   url?: string;
   imageId?: string;
 }
 
-interface PostComment {
+export interface PostComment {
   id: string;
   postId: string;
   text: string;
   authorId: string;
   authorName: string;
-  createdAt: string; // ISO string
+  createdAt: string;
 }
 
-interface GetCommentsResult {
+export interface GetCommentsResult {
   success: boolean;
   message?: string;
   comments?: PostComment[];
 }
 
-interface ToggleLikeResult {
+export interface ToggleLikeResult {
   success: boolean;
   message?: string;
   liked?: boolean;
   likesCount?: number;
 }
 
-interface AddCommentResult {
+export interface AddCommentResult {
   success: boolean;
   message?: string;
   comment?: PostComment;
 }
 
+// -------------------
 // Product Types
-interface Product {
+// -------------------
+export interface Product {
   id: string;
-  name: string;
-  description: string;
-  price: number;
-  originalPrice?: number | null;
-  category: string;
-  imageUrl?: string | null;
-  stock?: number;
-  materials?: string[];
-  difficulty?: 'beginner' | 'intermediate' | 'advanced';
-  tags?: string[];
-  sellerId: string;
-  sellerName: string;
-  sellerType: 'creator' | 'craft-business';
-  rating?: number;
-  reviewCount?: number;
-  salesCount?: number;
-  createdAt: string | null;
-  updatedAt: string | null;
-}
-
-interface CreateProductParams {
   name: string;
   description: string;
   price: number;
@@ -117,20 +109,76 @@ interface CreateProductParams {
   imageUrl?: string | null;
   stock?: number;
   materials?: string[];
-  difficulty?: 'beginner' | 'intermediate' | 'advanced';
+  difficulty?: "beginner" | "intermediate" | "advanced";
+  tags?: string[];
+  sellerId: string;
+  sellerName: string;
+  sellerType: "creator" | "craft-business";
+  rating?: number;
+  reviewCount?: number;
+  salesCount?: number;
+  createdAt: string | null;
+  updatedAt: string | null;
+}
+
+export interface CreateProductParams {
+  name: string;
+  description: string;
+  price: number;
+  originalPrice?: number;
+  category: string;
+  imageUrl?: string | null;
+  stock?: number;
+  materials?: string[];
+  difficulty?: "beginner" | "intermediate" | "advanced";
   tags?: string[];
 }
 
-interface ProductFilters {
+export interface ProductFilters {
   category?: string;
   minPrice?: number;
   maxPrice?: number;
   sellerId?: string;
-  sortBy?: 'newest' | 'price_asc' | 'price_desc' | 'popular';
+  sortBy?: "newest" | "price_asc" | "price_desc" | "popular";
 }
 
-interface GetProductsResult {
+export interface GetProductsResult {
   success: boolean;
   message?: string;
   products?: Product[];
 }
+
+// -------------------
+// Follower Type
+// -------------------
+export interface Follower {
+  id: string;
+  username: string;
+  photoURL?: string;
+}
+
+// -------------------
+// Order Types
+// -------------------
+export interface Order {
+  id: string;
+  creatorId: string;
+  customerId: string;
+  customerName: string;
+  products: OrderProduct[];
+  total: number;
+  status: "Pending" | "Processing" | "Shipped" | "Completed" | "Cancelled";
+  createdAt: {
+    toDate: () => Date;
+  } | null;
+}
+
+export interface OrderProduct {
+  productId: string;
+  name: string;
+  quantity: number;
+  price: number;
+}
+
+// Make this a module
+export {};

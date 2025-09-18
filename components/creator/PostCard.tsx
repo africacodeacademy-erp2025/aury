@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import React, { useState, useEffect } from 'react';
@@ -7,17 +6,16 @@ import { addComment, getComments, toggleLike } from '@/lib/actions/community.act
 import Image from 'next/image';
 import { Heart, MessageCircle, Share2, Copy, Check } from 'lucide-react';
 import { toast } from 'sonner';
-
-// ✅ Firebase
 import { firebaseAuth } from '@/firebase/client';
-import { onAuthStateChanged } from 'firebase/auth';
+import { onAuthStateChanged, User } from 'firebase/auth';
+import type { Post, PostComment } from '@/types/post';
 
 interface PostCardProps {
   post: Post;
 }
 
 export default function PostCard({ post }: PostCardProps) {
-  const [currentUser, setCurrentUser] = useState<any>(null);
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(firebaseAuth, (user) => setCurrentUser(user));
@@ -34,13 +32,13 @@ export default function PostCard({ post }: PostCardProps) {
   const [showShareMenu, setShowShareMenu] = useState(false);
   const [copied, setCopied] = useState(false);
 
-  // ✅ Follow state
+  // Follow state
   const [isFollowing, setIsFollowing] = useState(false);
   const [followAnimating, setFollowAnimating] = useState(false);
 
   useEffect(() => {
     const checkFollowing = async () => {
-      if (!currentUser?.uid || !post?.authorId) return;
+      if (!currentUser?.uid || !post.authorId) return;
       try {
         const res = await fetch(`/api/checkFollowing?userId=${currentUser.uid}&authorId=${post.authorId}`);
         const data = await res.json();
@@ -54,9 +52,9 @@ export default function PostCard({ post }: PostCardProps) {
 
   const getInitials = (name: string) => name.split(' ').map(n => n[0]?.toUpperCase()).join('');
 
-  const formatTimestamp = (timestamp: any) => {
+  const formatTimestamp = (timestamp: Date | { toDate: () => Date }) => {
     try {
-      const date = timestamp?.toDate ? timestamp.toDate() : new Date(timestamp);
+      const date = 'toDate' in timestamp ? timestamp.toDate() : new Date(timestamp);
       return formatDistanceToNow(date, { addSuffix: true });
     } catch {
       return 'Recently';
@@ -107,10 +105,12 @@ export default function PostCard({ post }: PostCardProps) {
     try {
       const result = await addComment(post.id, commentText.trim());
       if (result.success && result.comment) {
-        setComments(prev => [result.comment!, ...prev]);
+        setComments(prev => [result.comment as PostComment, ...prev]);
         setCommentText('');
         toast.success('Comment added!');
-      } else toast.error('Failed to add comment');
+      } else {
+        toast.error('Failed to add comment');
+      }
     } catch {
       toast.error('Failed to add comment');
     } finally {
@@ -144,9 +144,8 @@ export default function PostCard({ post }: PostCardProps) {
     setShowShareMenu(false);
   };
 
-  // ✅ Animated follow
   const handleFollow = async () => {
-    if (!currentUser?.uid || !post?.authorId) return;
+    if (!currentUser?.uid || !post.authorId) return;
 
     setFollowAnimating(true);
 
@@ -177,11 +176,8 @@ export default function PostCard({ post }: PostCardProps) {
       {/* Author Info */}
       <div className="flex items-center justify-between p-4 border-b border-gray-100 dark:border-gray-700">
         <div className="flex items-center space-x-3 relative">
-          {/* Avatar */}
           <div className="relative h-10 w-10 flex items-center justify-center rounded-full bg-gray-400 text-white font-bold">
             {getInitials(post.authorName)}
-
-            {/* Follow button bottom-right with animation */}
             {currentUser?.uid !== post.authorId && (
               <button
                 onClick={handleFollow}

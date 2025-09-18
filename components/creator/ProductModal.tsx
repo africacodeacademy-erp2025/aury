@@ -1,69 +1,54 @@
-'use client';
+"use client";
 
-import React, { useEffect } from 'react';
-import { X } from 'lucide-react';
-import ProductForm from './ProductForm';
+import React from "react";
+import ProductForm from "./ProductForm";
+import { createProduct, updateProduct } from "@/lib/actions/product.action";
 
-interface ProductModalProps {
+type ProductModalProps = {
   isOpen: boolean;
   onClose: () => void;
-}
+  editingItem?: Product | null;
+  onSuccess: () => void;
+};
 
-export default function ProductModal({ isOpen, onClose }: ProductModalProps) {
-  // Handle escape key
-  useEffect(() => {
-    const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        onClose();
-      }
-    };
-
-    if (isOpen) {
-      document.addEventListener('keydown', handleEscape);
-      document.body.style.overflow = 'hidden';
-    }
-
-    return () => {
-      document.removeEventListener('keydown', handleEscape);
-      document.body.style.overflow = 'unset';
-    };
-  }, [isOpen, onClose]);
-
+export default function ProductModal({
+  isOpen,
+  onClose,
+  editingItem,
+  onSuccess,
+}: ProductModalProps) {
   if (!isOpen) return null;
 
-  const handleSuccess = () => {
-    onClose();
-    // Refresh the page to show the new product
-    setTimeout(() => window.location.reload(), 500);
+  const handleSubmit = async (data: CreateProductParams) => {
+    try {
+      if (editingItem) {
+        await updateProduct(editingItem.id, data);
+      } else {
+        await createProduct(data);
+      }
+      onSuccess();
+      onClose();
+    } catch (error) {
+      console.error("Failed to save product:", error);
+    }
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
-      {/* Backdrop */}
-      <div 
-        className="absolute inset-0 bg-black bg-opacity-50 backdrop-blur-sm"
-        onClick={onClose}
-      />
-      
-      {/* Modal */}
-      <div className="relative bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto">
-        {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
-          <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
-            Add New Product
-          </h2>
+    <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
+      <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg w-full max-w-lg">
+        <h2 className="text-lg font-semibold mb-4">
+          {editingItem ? "Edit Product" : "Add Product"}
+        </h2>
+
+        <ProductForm editingItem={editingItem} onSubmit={handleSubmit} />
+
+        <div className="flex justify-end gap-2 mt-4">
           <button
             onClick={onClose}
-            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
-            aria-label="Close modal"
+            className="px-4 py-2 bg-gray-200 dark:bg-gray-600 rounded"
           >
-            <X className="h-5 w-5" />
+            Cancel
           </button>
-        </div>
-        
-        {/* Content */}
-        <div className="p-6">
-          <ProductForm onSuccess={handleSuccess} onCancel={onClose} />
         </div>
       </div>
     </div>
