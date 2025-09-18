@@ -38,7 +38,7 @@ export async function POST(request: Request) {
             payment_method_types: ["card"],
             mode: "payment",
             automatic_tax: { enabled: true },
-            return_url: `${request.headers.get("referer")}/paymentResult?session_id={CHECKOUT_SESSION_ID}`,
+            return_url: `${request.headers.get("origin")}/marketplace/paymentResult?session_id={CHECKOUT_SESSION_ID}`,
         });
 
         return NextResponse.json({ id: session.id, client_secret: session.client_secret });
