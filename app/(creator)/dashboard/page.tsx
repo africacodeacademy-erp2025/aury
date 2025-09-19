@@ -6,12 +6,14 @@ import { Plus, Camera, TrendingUp, Users, DollarSign, Package } from "lucide-rea
 import { onAuthStateChanged } from "firebase/auth";
 import { firebaseAuth, firebaseDb } from "@/firebase/client";
 import { collection, query, where, getDocs, orderBy, doc, getDoc } from "firebase/firestore";
-import type { Product, Follower, Post, Order } from "@/types";
+import type { Product, Follower, Order } from "@/types";
+import Image from "next/image";
 
 interface DashboardPost {
   id: string;
   imageUrl?: string;
   caption: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   createdAt?: any;
 }
 
@@ -113,7 +115,8 @@ export default function CreatorDashboardPage() {
     }
   };
 
-  const handleProductSuccess = (newProduct: Product) => {
+  const handleProductSuccess = (newProduct?: Product) => {
+    if (!newProduct) return;
     setItems(prev => {
       const idx = prev.findIndex(i => i.id === newProduct.id);
       if (idx !== -1) {
@@ -164,7 +167,7 @@ export default function CreatorDashboardPage() {
             <DollarSign className="h-8 w-8 text-green-500" />
             <div>
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Total Earnings</h3>
-              <p className="text-3xl font-bold text-green-500">R{totalEarnings.toFixed(2)}</p>
+              <p className="text-3xl font-bold text-green-500">P{totalEarnings.toFixed(2)}</p>
             </div>
           </div>
 
@@ -189,11 +192,18 @@ export default function CreatorDashboardPage() {
                 {posts.length === 0 && <p className="text-gray-500 col-span-2">No posts yet.</p>}
                 {posts.map(post => (
                   <div key={post.id} className="relative group overflow-hidden rounded-lg aspect-square">
-                    <img
+                    <Image
+                      src={post.imageUrl ?? ""}
+                      alt={post.caption}
+                      width={100}
+                      height={100}
+                      className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                    />
+                    {/* <img
                       src={post.imageUrl ?? ""}
                       alt={post.caption}
                       className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                    />
+                    /> */}
                     <div className="absolute inset-0 bg-black bg-opacity-30 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity duration-300">
                       <p className="text-white text-sm text-center px-2">{post.caption}</p>
                     </div>
@@ -223,7 +233,7 @@ export default function CreatorDashboardPage() {
                   <div key={item.id} className="relative group overflow-hidden rounded-lg border p-2">
                     <img src={item.imageUrl ?? ""} alt={item.name} className="w-full h-48 object-cover rounded-lg mb-2" />
                     <h4 className="font-semibold text-gray-900 dark:text-white">{item.name}</h4>
-                    <p className="text-gray-600 dark:text-gray-300">R{item.price}</p>
+                    <p className="text-gray-600 dark:text-gray-300">P{item.price}</p>
                     <div className="flex gap-2 mt-2">
                       <button className="flex-1 bg-yellow-500 hover:bg-yellow-600 text-white py-1 rounded" onClick={() => handleEditProduct(item)}>Edit</button>
                       <button className="flex-1 bg-red-500 hover:bg-red-600 text-white py-1 rounded" onClick={() => handleDeleteProduct(item.id)}>Delete</button>
@@ -244,7 +254,7 @@ export default function CreatorDashboardPage() {
                 {orders.slice(0, 3).map(order => (
                   <div key={order.id} className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
                     <p className="font-medium">{order.customerName}</p>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">Total: R{order.total}</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Total: P{order.total}</p>
                     <p className="text-sm text-gray-500 dark:text-gray-400">Status: {order.status}</p>
                   </div>
                 ))}

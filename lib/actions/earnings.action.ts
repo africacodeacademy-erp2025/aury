@@ -118,7 +118,7 @@ export async function requestPayout(
 
     const minimumPayout = 100; // R100 minimum payout
     if (amount < minimumPayout) {
-      return { success: false, message: `Minimum payout amount is R${minimumPayout}` };
+      return { success: false, message: `Minimum payout amount is P${minimumPayout}` };
     }
 
     // Create payout request

@@ -26,7 +26,7 @@ export async function POST(request: Request) {
                 {
                     price_data: {
                         unit_amount: product.price * 100,
-                        currency: "zar",
+                        currency: "bwp",
                         product_data: {
                             name: product.name,
                             images: ["https://joel-portfolio.web.app/images/about-img.jpg"], // FIXME: change imageUrl from firebase collection to a hosting service (vercel, cloudinary)

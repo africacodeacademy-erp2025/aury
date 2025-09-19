@@ -2,12 +2,13 @@
 
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
-import { Edit, Trash2, Eye, Package } from "lucide-react";
+import { Edit, Trash2, Package } from "lucide-react";
 
 import { getProducts, deleteProduct } from "@/lib/actions/product.action";
 import { getCurrentUser } from "@/lib/actions/auth.action";
 
 import ProductModal from "./ProductModal";
+import { Product, User } from "@/types";
 
 export default function ProductList() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -29,7 +30,7 @@ export default function ProductList() {
 
       if (productsResult.success && productsResult.products) {
         const userProducts = productsResult.products.filter(
-          (p) => p.sellerId === userResult?.id
+          (p: Product) => p.sellerId === userResult?.id
         );
         setProducts(userProducts);
       } else {
@@ -127,7 +128,7 @@ export default function ProductList() {
               </p>
 
               <p className="text-xl font-bold text-gray-900 dark:text-white">
-                R{product.price}
+                P{product.price}
               </p>
 
               <div className="flex justify-between items-center pt-2 border-t border-gray-200 dark:border-gray-700">

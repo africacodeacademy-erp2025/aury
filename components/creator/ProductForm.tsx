@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { firebaseStorage } from "@/firebase/client";
 import { Loader2, Upload } from "lucide-react"; // ✅ icons
+import { CreateProductParams, Product } from "@/types";
 
 type ProductFormProps = {
   editingItem?: Product | null;
@@ -128,7 +129,7 @@ export default function ProductForm({ editingItem, onSubmit }: ProductFormProps)
       <div className="grid grid-cols-2 gap-4">
         <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-200">
-            Price (R)
+            Price (P)
           </label>
           <input
             type="number"
@@ -140,7 +141,7 @@ export default function ProductForm({ editingItem, onSubmit }: ProductFormProps)
 
         <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-200">
-            Original Price (R)
+            Original Price (P)
           </label>
           <input
             type="number"
