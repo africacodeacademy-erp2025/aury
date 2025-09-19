@@ -1,0 +1,39 @@
+services:
+  aury-app:
+    container_name: aury-dev
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+
+    # Load development environment variables
+    env_file:
+      - .env.development
+
+    # Enable hot reload with volume mounts
+    volumes:
+      - ./app:/app/app
+      - ./components:/app/components
+      - ./lib:/app/lib
+      - ./types:/app/types
+      - ./firebase:/app/firebase
+      - ./public:/app/public
+      - ./next.config.ts:/app/next.config.ts
+      - ./postcss.config.mjs:/app/postcss.config.mjs
+      - ./components.json:/app/components.json
+      - ./eslint.config.mjs:/app/eslint.config.mjs
+
+    restart: always
+    ports:
+      - "3000:3000"
+    networks:
+      - aury_dev_network
+
+    # Environment variables for development
+    environment:
+      - NODE_ENV=development
+      - NEXT_TELEMETRY_DISABLED=1
+
+# Network for container communication
+networks:
+  aury_dev_network:
+    driver: bridge
