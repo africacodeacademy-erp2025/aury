@@ -6,6 +6,7 @@ import { notFound } from "next/navigation";
 import { getProductById, getProducts } from "@/lib/actions/product.action";
 import ProductCard from "@/components/marketplace/ProductCard";
 import PurchaseModal from "@/components/marketplace/PurchaseModal";
+import { Product } from "@/types";
 
 type PageProps = {
   params: { productId: string };
@@ -28,7 +29,7 @@ export default async function ProductPage({ params }: PageProps) {
     .slice(0, 6);
 
   return (
-    <div className="flex flex-col gap-10">
+    <div className="flex flex-col gap-10 px-5 md:px-20 pt-5">
       {/* BREADCRUMBS */}
       <nav className="text-sm text-muted-foreground">
         <Link href="/marketplace" className="hover:underline">Marketplace</Link>
@@ -63,7 +64,7 @@ export default async function ProductPage({ params }: PageProps) {
           </div>
 
           <div className="flex items-baseline gap-3">
-            <span className="text-3xl font-semibold text-primary-600">R {product.price}</span>
+            <span className="text-3xl font-semibold text-primary-600">P {product.price}</span>
           </div>
 
           <p className="leading-relaxed text-base sm:text-lg whitespace-pre-line">

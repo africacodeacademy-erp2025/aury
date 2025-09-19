@@ -1,7 +1,8 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import ProductModal from "@/components/creator/ProductModal";
-import { Plus, Heart, MessageCircle, Share, Bookmark, MoreHorizontal, User, Camera, TrendingUp, Users, DollarSign, Grid3X3 } from "lucide-react";
+import { Plus, Camera, TrendingUp, Users, DollarSign } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { onAuthStateChanged } from "firebase/auth";
 import { firebaseAuth, firebaseDb } from "@/firebase/client";
@@ -30,7 +31,7 @@ export default function CreatorDashboardPage() {
   const [postsCount, setPostsCount] = useState(0);
   const [followersCount, setFollowersCount] = useState(0);
   const [patternsCount, setPatternsCount] = useState(0);
-  const [earnings, setEarnings] = useState("R0.00");
+  const [earnings, setEarnings] = useState("P0.00");
   const [storiesCount, setStoriesCount] = useState(0);
 
   // Load profile and stats
@@ -59,7 +60,7 @@ export default function CreatorDashboardPage() {
         if (followersRes.ok) setFollowersCount((await followersRes.json()).length);
 
         // Placeholder: earnings & stories
-        setEarnings("R0.00");
+        setEarnings("P0.00");
         setStoriesCount(0);
       } catch (err) {
         console.error("Error loading profile/dashboard data:", err);
@@ -107,7 +108,7 @@ export default function CreatorDashboardPage() {
             Creator Dashboard
           </h1>
           <p className="mt-2 text-sm sm:text-base text-gray-600 dark:text-gray-300">
-            Welcome back! Here's what's happening with your patterns and community.
+            Welcome back! Here&apos;s what&apos;s happening with your patterns and community.
           </p>
         </div>
 
@@ -366,6 +367,7 @@ export default function CreatorDashboardPage() {
         <ProductModal
           isOpen={isProductModalOpen}
           onClose={() => setIsProductModalOpen(false)}
+          onSuccess={() => setIsProductModalOpen(false)}
         />
       </main>
     </>

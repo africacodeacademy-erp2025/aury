@@ -10,6 +10,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Button } from "../ui/button";
 import { Star, ShoppingCart, Eye } from "lucide-react";
+import { Product } from "@/types";
 
 interface ProductCardProps {
   product: Product;
@@ -98,11 +99,11 @@ const ProductCard = ({ product, viewMode = 'grid' }: ProductCardProps) => {
                 <div className="text-right">
                   <div className="flex items-center gap-2">
                     <span className="text-xl font-bold text-primary-600">
-                      R{product.price}
+                      P{product.price}
                     </span>
                     {product.originalPrice && product.originalPrice > product.price && (
                       <span className="text-sm text-gray-500 line-through">
-                        R{product.originalPrice}
+                        P{product.originalPrice}
                       </span>
                     )}
                   </div>
@@ -212,11 +213,11 @@ const ProductCard = ({ product, viewMode = 'grid' }: ProductCardProps) => {
         <div>
           <div className="flex items-center gap-2">
             <span className="text-xl font-bold text-primary-600">
-              R{product.price}
+              P{product.price}
             </span>
             {product.originalPrice && product.originalPrice > product.price && (
               <span className="text-sm text-gray-500 line-through">
-                R{product.originalPrice}
+                P{product.originalPrice}
               </span>
             )}
           </div>

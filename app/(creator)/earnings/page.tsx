@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import React, { useEffect, useState } from "react";
@@ -66,7 +67,7 @@ export default function EarningsPage() {
             Total Earnings
           </h3>
           <p className="text-3xl font-bold text-green-600 mt-2">
-            R{orders.reduce((sum, o) => sum + (o.total || 0), 0).toFixed(2)}
+            P{orders.reduce((sum, o) => sum + (o.total || 0), 0).toFixed(2)}
           </p>
           <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">All time</p>
         </div>
@@ -76,8 +77,12 @@ export default function EarningsPage() {
             This Month
           </h3>
           <p className="text-3xl font-bold text-blue-600 mt-2">
-            R{orders
-              .filter((o) => new Date(o.date).getMonth() === new Date().getMonth())
+            P{orders
+              .filter(
+                (o) =>
+                  o.date !== undefined &&
+                  new Date(o.date).getMonth() === new Date().getMonth()
+              )
               .reduce((sum, o) => sum + (o.total || 0), 0)
               .toFixed(2)}
           </p>
@@ -164,7 +169,7 @@ export default function EarningsPage() {
                     <td className="px-6 py-4">
                       {order.products?.map((p) => `${p.name} x${p.quantity}`).join(", ")}
                     </td>
-                    <td className="px-6 py-4">R{(order.total || 0).toFixed(2)}</td>
+                    <td className="px-6 py-4">P{(order.total || 0).toFixed(2)}</td>
                     <td className="px-6 py-4">{order.status}</td>
                     <td className="px-6 py-4">
                       {order.date ? new Date(order.date).toLocaleDateString() : "-"}
