@@ -5,7 +5,7 @@ import ProductModal from "@/components/creator/ProductModal";
 import { Plus, Camera, TrendingUp, Users, DollarSign, Package } from "lucide-react";
 import { onAuthStateChanged } from "firebase/auth";
 import { firebaseAuth, firebaseDb } from "@/firebase/client";
-import { collection, query, where, getDocs, orderBy } from "firebase/firestore";
+import { collection, query, where, getDocs, orderBy, doc, getDoc } from "firebase/firestore";
 import type { Product, Follower, Post, Order } from "@/types";
 
 interface DashboardPost {
@@ -56,11 +56,12 @@ export default function CreatorDashboardPage() {
         );
         setPosts(postsSnap.docs.map(doc => ({ id: doc.id, ...doc.data() })) as DashboardPost[]);
 
-        // ---------- Followers ----------
-        const followersSnap = await getDocs(
-          query(collection(firebaseDb, "followers"), where("creatorId", "==", uid))
-        );
-        setFollowers(followersSnap.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Follower[]);
+        // ---------- Followers (from user document) ----------
+        const userDoc = await getDoc(doc(firebaseDb, "users", uid));
+        if (userDoc.exists()) {
+          const data = userDoc.data();
+          setFollowers(data.followers || []);
+        }
 
         // ---------- Orders ----------
         const ordersSnap = await getDocs(
@@ -81,6 +82,7 @@ export default function CreatorDashboardPage() {
           } as Order;
         });
         setOrders(ordersData);
+
       } catch (err) {
         console.error("Error fetching dashboard data:", err);
         alert(err instanceof Error ? err.message : "Failed to fetch dashboard data");
