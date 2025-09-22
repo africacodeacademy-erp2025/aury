@@ -22,7 +22,7 @@ This project uses a multi-environment Docker setup with:
 ```
 ├── Dockerfile.dev              # Development Dockerfile
 ├── Dockerfile.prod             # Production Dockerfile
-├── docker-compose.dev.yaml     # Development compose configuration
+├── docker-compose.dev.yml     # Development compose configuration
 ├── docker-compose.prod.yaml    # Production compose configuration
 ├── .env.development            # Development environment variables
 └── next.config.mjs             # Must include output: 'standalone'
@@ -188,7 +188,7 @@ ENV NEXT_PUBLIC_FIREBASE_API_KEY=${NEXT_PUBLIC_FIREBASE_API_KEY}
 CMD ["node", "server.js"]
 ```
 
-### 3. Development Docker Compose (`docker-compose.dev.yaml`)
+### 3. Development Docker Compose (`docker-compose.dev.yml`)
 
 ```yaml
 services:
@@ -301,7 +301,7 @@ NEXT_PUBLIC_FIREBASE_PHONE_TESTING=true
 1. **Start the development environment:**
 
    ```bash
-   docker-compose -f docker-compose.dev.yaml up --build
+   docker-compose -f docker-compose.dev.yml up --build
    ```
 
 2. **Access the application:**
@@ -311,7 +311,7 @@ NEXT_PUBLIC_FIREBASE_PHONE_TESTING=true
 
 3. **Stop the development environment:**
    ```bash
-   docker-compose -f docker-compose.dev.yaml down
+   docker-compose -f docker-compose.dev.yml down
    ```
 
 ### Production Mode
@@ -420,7 +420,7 @@ The production Dockerfile uses a multi-stage build:
 1. **Check container logs:**
 
    ```bash
-   docker-compose -f docker-compose.dev.yaml logs -f
+   docker-compose -f docker-compose.dev.yml logs -f
    ```
 
 2. **Access container shell:**
@@ -431,7 +431,7 @@ The production Dockerfile uses a multi-stage build:
 
 3. **Rebuild without cache:**
    ```bash
-   docker-compose -f docker-compose.dev.yaml build --no-cache
+   docker-compose -f docker-compose.dev.yml build --no-cache
    ```
 
 ## Integration with Development Tools

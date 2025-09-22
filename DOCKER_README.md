@@ -7,10 +7,10 @@ This document provides comprehensive instructions for running the Aury Next.js a
 ### Development Mode
 ```bash
 # Start development environment with hot reload
-docker-compose -f docker-compose.dev.yaml up --build
+docker-compose -f docker-compose.dev.yml up --build
 
 # Or run in detached mode
-docker-compose -f docker-compose.dev.yaml up -d --build
+docker-compose -f docker-compose.dev.yml up -d --build
 ```
 
 ### Production Mode
@@ -27,7 +27,7 @@ docker-compose -f docker-compose.prod.yaml up -d --build
 ```
 ├── Dockerfile.dev              # Development Dockerfile
 ├── Dockerfile.prod             # Production Dockerfile  
-├── docker-compose.dev.yaml     # Development compose configuration
+├── docker-compose.dev.yml     # Development compose configuration
 ├── docker-compose.prod.yaml    # Production compose configuration
 ├── .env.development            # Development environment variables
 ├── .env.production             # Production environment variables
@@ -44,7 +44,7 @@ docker-compose -f docker-compose.prod.yaml up -d --build
 
 ### Docker Compose
 
-- **docker-compose.dev.yaml**: Development setup with volume mounts for instant code changes
+- **docker-compose.dev.yml**: Development setup with volume mounts for instant code changes
 - **docker-compose.prod.yaml**: Production setup with health checks and optimized configuration
 
 ### Environment Variables
@@ -98,16 +98,16 @@ The development setup mounts the following directories for hot reload:
 ### Usage
 ```bash
 # Start development environment
-docker-compose -f docker-compose.dev.yaml up --build
+docker-compose -f docker-compose.dev.yml up --build
 
 # View logs
-docker-compose -f docker-compose.dev.yaml logs -f
+docker-compose -f docker-compose.dev.yml logs -f
 
 # Stop environment
-docker-compose -f docker-compose.dev.yaml down
+docker-compose -f docker-compose.dev.yml down
 
 # Rebuild without cache
-docker-compose -f docker-compose.dev.yaml build --no-cache
+docker-compose -f docker-compose.dev.yml build --no-cache
 ```
 
 ## 🚀 Production Environment
@@ -197,7 +197,7 @@ The production container includes a built-in health check:
    docker system prune -a
    
    # Rebuild without cache
-   docker-compose -f docker-compose.dev.yaml build --no-cache
+   docker-compose -f docker-compose.dev.yml build --no-cache
    ```
 
 ### Debugging Commands
