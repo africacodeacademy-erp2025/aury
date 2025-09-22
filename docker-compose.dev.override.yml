@@ -2,12 +2,20 @@ services:
   aury-app:
     container_name: aury-dev
     build:
-      context: .
       dockerfile: Dockerfile.dev
+      # Remove production build args for development
+      args: {}
 
     # Load development environment variables
     env_file:
       - .env.development
+
+    # Override production restart policy for development
+    restart: always
+
+    # Override port mapping to match production
+    ports:
+      - "3001:3000"
 
     # Enable hot reload with volume mounts
     volumes:
@@ -22,18 +30,14 @@ services:
       - ./components.json:/app/components.json
       - ./eslint.config.mjs:/app/eslint.config.mjs
 
-    restart: always
-    ports:
-      - "3000:3000"
     networks:
-      - aury_dev_network
+      - aury_network
 
     # Environment variables for development
     environment:
       - NODE_ENV=development
       - NEXT_TELEMETRY_DISABLED=1
 
-# Network for container communication
-networks:
-  aury_dev_network:
-    driver: bridge
+    # Remove health check for development
+    healthcheck:
+      disable: true

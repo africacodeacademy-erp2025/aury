@@ -29,6 +29,10 @@ COPY eslint.config.mjs .
 # Optional: Disable Next.js telemetry
 ENV NEXT_TELEMETRY_DISABLED=1
 
+# Configure to bind to all interfaces
+ENV PORT=3000
+ENV HOSTNAME=0.0.0.0
+
 # Expose port
 EXPOSE 3000
 
