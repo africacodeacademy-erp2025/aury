@@ -104,7 +104,7 @@ export interface Product {
   name: string;
   description: string;
   price: number;
-  originalPrice?: number;
+  originalPrice?: number | null;
   category: string;
   imageUrl?: string | null;
   stock?: number;

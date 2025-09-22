@@ -8,7 +8,8 @@ import { Heart, MessageCircle, Share2, Copy, Check } from 'lucide-react';
 import { toast } from 'sonner';
 import { firebaseAuth } from '@/firebase/client';
 import { onAuthStateChanged, User } from 'firebase/auth';
-import type { Post, PostComment } from '@/types/post';
+import type { Post } from '@/types/post';
+import { PostComment } from '@/types';
 
 interface PostCardProps {
   post: Post;

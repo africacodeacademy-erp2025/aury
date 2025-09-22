@@ -5,6 +5,7 @@ import Link from "next/link";
 import { LogOut, Menu, X } from "lucide-react";
 import { getCurrentUser, signOut } from "@/lib/actions/auth.action";
 import { useRouter } from "next/navigation";
+import { User } from "@/types";
 
 interface NavItem {
   name: string;

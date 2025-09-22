@@ -9,7 +9,7 @@ import PurchaseModal from "@/components/marketplace/PurchaseModal";
 import { Product } from "@/types";
 
 type PageProps = {
-  params: { productId: string };
+  params: Promise<{ productId: string }>;
 };
 
 export default async function ProductPage({ params }: PageProps) {

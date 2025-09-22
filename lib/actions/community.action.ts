@@ -4,6 +4,7 @@
 import { firebaseDb } from '@/firebase/admin';
 import { getCurrentUser } from './auth.action';
 import { FieldValue } from 'firebase-admin/firestore';
+import { AddCommentResult, CreatePostParams, GetCommentsResult, Post, PostComment, ToggleLikeResult } from '@/types';
 
 export async function createPost(params: CreatePostParams) {
   try {

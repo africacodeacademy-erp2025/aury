@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { getCurrentUser, signOut } from "@/lib/actions/auth.action";
 import PostModal from "./PostModal";
+import { User } from "@/types";
 
 interface NavItem {
   name: string;

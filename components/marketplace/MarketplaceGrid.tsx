@@ -6,6 +6,7 @@ import ProductCard from "./ProductCard";
 import ProductFilters from "./ProductFilters";
 import { toast } from "sonner";
 import { Search, Grid, List, SlidersHorizontal } from "lucide-react";
+import { Product } from "@/types";
 
 interface FilterState {
   category: string;

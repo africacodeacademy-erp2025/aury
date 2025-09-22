@@ -4,6 +4,10 @@ import ProductModal from '@/components/creator/ProductModal';
 import { Plus } from 'lucide-react';
 import React, { useState } from "react";
 
+const deleteLater = () => {
+  console.log("Delete me")
+}
+
 export default function CraftBusinessDashboardPage() {
   const [isProductModalOpen, setIsProductModalOpen] = useState(false);
 
@@ -65,7 +69,8 @@ export default function CraftBusinessDashboardPage() {
       </main>
       <ProductModal 
         isOpen={isProductModalOpen} 
-        onClose={() => setIsProductModalOpen(false)} 
+        onClose={() => setIsProductModalOpen(false)}
+        onSuccess={deleteLater}
       />
     </>
   );

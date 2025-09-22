@@ -1,6 +1,7 @@
 "use server";
 
 import { firebaseAuth, firebaseDb } from "@/firebase/admin";
+import { SignInParams, SignUpParams, User } from "@/types";
 import { cookies } from "next/headers";
 
 // Session duration (1 week)

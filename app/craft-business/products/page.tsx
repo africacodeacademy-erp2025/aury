@@ -8,6 +8,10 @@ import React, { useState } from "react";
 export default function CraftBusinessProductsPage() {
   const [isProductModalOpen, setIsProductModalOpen] = useState(false);
 
+  const deleteLater = () => {
+    console.log("Delete me later")
+  }
+
   return (
     <>
       <main className="mx-auto max-w-7xl p-6 space-y-8">
@@ -34,7 +38,8 @@ export default function CraftBusinessProductsPage() {
       </main>
       <ProductModal 
         isOpen={isProductModalOpen} 
-        onClose={() => setIsProductModalOpen(false)} 
+        onClose={() => setIsProductModalOpen(false)}
+        onSuccess={deleteLater}
       />
     </>
   );

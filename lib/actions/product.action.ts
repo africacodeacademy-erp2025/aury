@@ -4,6 +4,7 @@
 import { firebaseDb } from '@/firebase/admin';
 import { getCurrentUser } from './auth.action';
 import { FieldValue } from 'firebase-admin/firestore';
+import { CreateProductParams, Product, ProductFilters } from '@/types';
 
 export async function createProduct(params: CreateProductParams) {
   try {

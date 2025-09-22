@@ -14,9 +14,9 @@ function jsonResponse(data: unknown, status = 200) {
 // GET creator profile
 export async function GET(
   req: Request,
-  { params }: { params: { uid: string } }
+  { params }: { params: Promise<{ uid: string }> }
 ) {
-  const { uid } = params;
+  const { uid } = await params;
 
   if (!uid) return jsonResponse({ error: "UID is required" }, 400);
 
@@ -38,9 +38,9 @@ export async function GET(
 // POST (create or update creator profile)
 export async function POST(
   req: Request,
-  { params }: { params: { uid: string } }
+  { params }: { params: Promise<{ uid: string }> }
 ) {
-  const { uid } = params;
+  const { uid } = await params;
 
   if (!uid) return jsonResponse({ error: "UID is required" }, 400);
 

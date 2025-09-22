@@ -160,6 +160,7 @@ export default function CreatorDashboardPage() {
           <div className="flex items-center gap-4">
             <div className="w-20 h-20 rounded-full bg-gray-200 dark:bg-gray-700 overflow-hidden flex items-center justify-center">
               {formData.logoUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
                 <img src={formData.logoUrl} alt="Logo" className="w-full h-full object-cover" />
               ) : (
                 <Camera className="text-gray-500" />

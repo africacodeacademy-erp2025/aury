@@ -15,6 +15,7 @@ import { getCurrentUser, signIn, signUp } from "@/lib/actions/auth.action";
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
 import { firebaseAuth } from "@/firebase/client";
 import { Controller } from "react-hook-form";
+import { FormType } from "@/types";
 
 /**
  * Returns a Zod schema for authentication forms based on the form type.

@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { getPosts } from '@/lib/actions/community.action';
 import MasonryGrid from './MansoryGrid';
+import { Post } from '@/types';
 
 
 export default function CommunityFeed() {
@@ -54,6 +55,14 @@ export default function CommunityFeed() {
   }
 
   return (
-    <MasonryGrid posts={posts} loading={loading} />
+    <MasonryGrid
+      posts={posts.map(post => ({
+        ...post,
+        imageUrl: post.imageUrl ?? undefined,
+        createdAt: post.createdAt ? new Date(post.createdAt) : new Date(),
+        updatedAt: post.updatedAt ? new Date(post.updatedAt) : new Date(),
+      }))}
+      loading={loading}
+    />
   );
 }
