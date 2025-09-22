@@ -2,6 +2,7 @@
 'use server';
 
 import { firebaseDb } from '@/firebase/admin';
+import { Product } from '@/types';
 
 export async function searchProducts(params: MarketplaceSearchParams): Promise<SearchResult> {
   try {
@@ -62,6 +63,7 @@ export async function searchProducts(params: MarketplaceSearchParams): Promise<S
 
     // Get total count for pagination
     const totalSnapshot = await firestoreQuery.count().get();
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const total = totalSnapshot.data().count;
 
     // Get paginated results

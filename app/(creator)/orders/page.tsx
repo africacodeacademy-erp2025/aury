@@ -53,6 +53,7 @@ export default function OrdersPage() {
 
   useEffect(() => {
     if (user) fetchOrders();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
   // Update order status

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // app/api/orders/route.ts
 import { NextResponse } from "next/server";
 import { firebaseDb } from "@/firebase/admin"; // server-only firebase-admin

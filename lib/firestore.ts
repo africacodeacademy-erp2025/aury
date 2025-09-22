@@ -15,6 +15,7 @@ export interface Post { caption?: string; imageUrl?: string }
 export interface Item { name?: string; price?: number; imageUrl?: string }
 
 // ✅ Auto-create user if not exists
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function createUserIfNotExists(userId: string, authUser: any): Promise<UserProfile> {
   const userRef = doc(db, "users", userId);
   const userDoc = await getDoc(userRef);

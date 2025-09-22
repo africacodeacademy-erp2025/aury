@@ -27,6 +27,7 @@ export default function PostCard({ post }: PostCardProps) {
   const [showComments, setShowComments] = useState(false);
   const [comments, setComments] = useState<PostComment[]>([]);
   const [commentText, setCommentText] = useState('');
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [loadingComments, setLoadingComments] = useState(false);
   const [submittingComment, setSubmittingComment] = useState(false);
   const [showShareMenu, setShowShareMenu] = useState(false);

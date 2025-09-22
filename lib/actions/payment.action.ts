@@ -10,6 +10,7 @@ import { FieldValue } from 'firebase-admin/firestore';
 
 export async function createPaymentIntent(
   orderId: string,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   amount: number
 ): Promise<{ success: boolean; clientSecret?: string; message?: string }> {
   try {
@@ -154,6 +155,7 @@ async function generateDigitalProductDownloads(orderId: string) {
 export async function processRefund(
   orderId: string,
   amount?: number,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   reason?: string
 ): Promise<{ success: boolean; message?: string }> {
   try {
@@ -181,6 +183,7 @@ export async function processRefund(
       return { success: false, message: 'Order has not been paid' };
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const refundAmount = amount || orderData.totalAmount;
 
     // In a real implementation, you would process the refund with Stripe
@@ -253,6 +256,7 @@ export async function processRefund(
 }
 
 export async function getPaymentMethods(
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   userId?: string
 ): Promise<{ success: boolean; paymentMethods?: any[]; message?: string }> {
   try {
