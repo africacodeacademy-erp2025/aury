@@ -23,6 +23,7 @@ import {
 } from "firebase/firestore";
 import type { Product, Follower, Order } from "@/types";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 interface DashboardPost {
   id: string;
@@ -33,6 +34,7 @@ interface DashboardPost {
 }
 
 export default function CreatorDashboardPage() {
+  const router = useRouter();
   const [userId, setUserId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [posts, setPosts] = useState<DashboardPost[]>([]);
@@ -366,13 +368,12 @@ export default function CreatorDashboardPage() {
               <div className="space-y-3">
                 <button
                   onClick={() => {
-                    setEditingItem(null);
-                    setIsProductModalOpen(true);
+                    router.push("/patterns/generate");
                   }}
                   className="w-full flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white px-4 py-3 rounded-lg font-medium transition-colors duration-200"
                 >
                   <Plus className="h-5 w-5" />
-                  Add New Pattern
+                  Generate Pattern
                 </button>
                 <button className="w-full flex items-center gap-2 bg-purple-500 hover:bg-purple-600 text-white px-4 py-3 rounded-lg font-medium transition-colors duration-200">
                   <Camera className="h-5 w-5" />
