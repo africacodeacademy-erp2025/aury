@@ -143,29 +143,35 @@ export async function uploadImage(file: File) {
       };
     }
 
-  // Convert file to base64 for storage in Firestore (server-side)
-  // Note: In production, you'd want to use Firebase Storage instead
-  const ab = await file.arrayBuffer();
-  const base64Body = Buffer.from(new Uint8Array(ab)).toString('base64');
-  const base64 = `data:${file.type};base64,${base64Body}`;
+    // Convert file to base64 for ImgBB upload
+    const ab = await file.arrayBuffer();
+    const base64Body = Buffer.from(new Uint8Array(ab)).toString('base64');
 
-    // Store image metadata in Firestore
-    const imageData = {
-      fileName: file.name,
-      fileSize: file.size,
-      fileType: file.type,
-      base64Data: base64,
-      uploadedBy: user.id,
-      uploadedAt: FieldValue.serverTimestamp(),
-    };
+    // Upload to ImgBB
+    const formData = new FormData();
+    formData.append("key", process.env.IMGBB_API_KEY!);
+    formData.append("image", base64Body);
+    formData.append("name", `${file.name.split('.')[0]}-${Date.now()}`);
 
-    const docRef = await firebaseDb.collection('images').add(imageData);
+    const imgbbResp = await fetch("https://api.imgbb.com/1/upload", {
+      method: "POST",
+      body: formData,
+    });
 
-    // Return the base64 data URL for immediate use
+    const imgbbData = await imgbbResp.json();
+    if (!imgbbData.success) {
+      console.error("ImgBB upload failed", imgbbData);
+      throw new Error("ImgBB upload failed");
+    }
+
+    const finalUrl = imgbbData.data.display_url || imgbbData.data.url;
+
+    // Return the ImgBB URL for immediate use
+    // The URL will be stored directly in the product document when the product is created
     return {
       success: true,
-      url: base64,
-      imageId: docRef.id,
+      url: finalUrl,
+      message: 'Image uploaded successfully',
     };
   } catch (error) {
     console.error('Error uploading image:', error);

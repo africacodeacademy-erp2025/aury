@@ -22,6 +22,32 @@ const PaymentResultPage = () => {
         const data = await response.json();
         console.log("Session data:", data);
         setSession(data);
+
+
+        // If payment was successful and it's a pattern product, deliver the pattern
+        if (data.payment_status === "paid" && data.metadata?.productId) {
+          try {
+            console.log("Delivering pattern for product:", data.metadata.productId);
+            const deliveryResponse = await fetch('/api/patterns/deliver', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                productId: data.metadata.productId,
+                customerEmail: data.customer_details?.email || data.metadata?.customerEmail,
+                customerName: data.customer_details?.name || data.metadata?.customerName,
+              }),
+            });
+            
+            const deliveryResult = await deliveryResponse.json();
+            if (deliveryResult.success) {
+              console.log("Pattern delivered successfully!");
+            } else {
+              console.warn("Pattern delivery failed:", deliveryResult.message);
+            }
+          } catch (error) {
+            console.error("Pattern delivery error:", error);
+          }
+        }
       } catch (error) {
         console.error("Failed to load payment result: ", error);
       } finally {

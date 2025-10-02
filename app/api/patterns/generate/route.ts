@@ -59,8 +59,6 @@ Include:
 - Materials list (with yarn requirements and amounts)
 - Gauge and tension info
 - Step-by-step instructions with stitch counts
-- Professional formatting and layout
-- Finishing and assembly details
 `;
 
         // call Gemini

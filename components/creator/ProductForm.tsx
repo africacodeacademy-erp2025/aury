@@ -2,10 +2,9 @@
 "use client";
 
 import React, { useState } from "react";
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { firebaseStorage } from "@/firebase/client";
-import { Loader2, Upload } from "lucide-react"; // ✅ icons
+import { Loader2, Upload } from "lucide-react";
 import { CreateProductParams, Product } from "@/types";
+import { uploadImage } from "@/lib/actions/community.action";
 
 type ProductFormProps = {
   editingItem?: Product | null;
@@ -54,10 +53,12 @@ export default function ProductForm({ editingItem, onSubmit }: ProductFormProps)
 
     setUploading(true);
     try {
-      const storageRef = ref(firebaseStorage, `products/${Date.now()}-${file.name}`);
-      await uploadBytes(storageRef, file);
-      const url = await getDownloadURL(storageRef);
-      setFormValues({ ...formValues, imageUrl: url });
+      const result = await uploadImage(file);
+      if (result.success && result.url) {
+        setFormValues({ ...formValues, imageUrl: result.url });
+      } else {
+        console.error("Image upload failed:", result.message);
+      }
     } catch (error) {
       console.error("Image upload failed:", error);
     } finally {

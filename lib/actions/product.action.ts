@@ -178,7 +178,7 @@ export async function getProductById(productId: string) {
     const createdAt = (data?.createdAt as any)?.toDate ? (data as any).createdAt.toDate().toISOString() : null;
     const updatedAt = (data?.updatedAt as any)?.toDate ? (data as any).updatedAt.toDate().toISOString() : null;
 
-    const product: Product = {
+    const product: any = {
       id: doc.id,
       name: data.name as string,
       description: data.description as string,
@@ -201,6 +201,13 @@ export async function getProductById(productId: string) {
       createdAt,
       updatedAt,
     };
+
+    // Include pattern-specific fields if they exist
+    if (data.productType === 'pattern') {
+      product.productType = data.productType;
+      product.patternContent = data.patternContent as string;
+      product.patternData = data.patternData;
+    }
 
     return {
       success: true,

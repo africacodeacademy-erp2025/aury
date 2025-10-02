@@ -15,6 +15,8 @@ import {
 } from "@/components/ui/select";
 import { Settings, Sparkles, Info } from "lucide-react";
 import { toast } from "sonner";
+import PatternPreview from "@/components/creator/PatternPreview";
+import PatternEditor from "@/components/creator/PatternEditor";
 
 const PatternGeneratorPage = () => {
   const [formData, setFormData] = useState({
@@ -29,6 +31,7 @@ const PatternGeneratorPage = () => {
 
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedPattern, setGeneratedPattern] = useState<string | null>(null);
+  const [isEditing, setIsEditing] = useState(false);
 
   const handleInputChange = (field: string, value: string) => {
     setFormData((prev) => ({
@@ -61,7 +64,7 @@ const PatternGeneratorPage = () => {
 
       // Show pattern in preview card instead of console
       setGeneratedPattern(data.pattern); // save pattern into state
-    } catch (error) {
+    } catch {
       toast.error("Request failed!");
     } finally {
       setIsGenerating(false);
@@ -252,17 +255,16 @@ const PatternGeneratorPage = () => {
             </div>
           </Card>
 
-          {/* Pattern Preview Card */}
-          <Card className="p-6 shadow-sm border border-gray-200">
-            <div className="flex items-center gap-2 mb-6">
-              <Sparkles className="w-5 h-5 text-purple-600" />
-              <h2 className="text-xl font-semibold text-gray-900">
-                Pattern Preview
-              </h2>
-            </div>
-
-            <div className="flex flex-col items-center justify-center h-64 md:h-80 bg-gray-50 rounded-lg border-2 border-dashed border-gray-200">
-              {isGenerating ? (
+          {/* Pattern Preview */}
+          {isGenerating ? (
+            <Card className="p-6 shadow-sm border border-gray-200">
+              <div className="flex items-center gap-2 mb-6">
+                <Sparkles className="w-5 h-5 text-purple-600" />
+                <h2 className="text-xl font-semibold text-gray-900">
+                  Pattern Preview
+                </h2>
+              </div>
+              <div className="flex flex-col items-center justify-center h-64 md:h-80 bg-gray-50 rounded-lg border-2 border-dashed border-gray-200">
                 <div className="text-center">
                   <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4 mx-auto"></div>
                   <p className="text-gray-600 font-medium">
@@ -272,11 +274,42 @@ const PatternGeneratorPage = () => {
                     This may take a few moments
                   </p>
                 </div>
-              ) : generatedPattern ? (
-                    <pre className="whitespace-pre-wrap text-sm text-gray-800 font-mono p-5 overflow-y-scroll">
-                    {generatedPattern}
-                    </pre>
-              ) : (
+              </div>
+            </Card>
+          ) : generatedPattern && !isEditing ? (
+            <PatternPreview
+              patternData={{
+                ...formData,
+                generatedPattern
+              }}
+              onEdit={() => {
+                setIsEditing(true);
+              }}
+            />
+          ) : generatedPattern && isEditing ? (
+            <PatternEditor
+              patternData={{
+                ...formData,
+                generatedPattern
+              }}
+              onSave={(updatedPatternData) => {
+                setGeneratedPattern(updatedPatternData.generatedPattern);
+                setIsEditing(false);
+                toast.success("Pattern updated successfully!");
+              }}
+              onCancel={() => {
+                setIsEditing(false);
+              }}
+            />
+          ) : (
+            <Card className="p-6 shadow-sm border border-gray-200">
+              <div className="flex items-center gap-2 mb-6">
+                <Sparkles className="w-5 h-5 text-purple-600" />
+                <h2 className="text-xl font-semibold text-gray-900">
+                  Pattern Preview
+                </h2>
+              </div>
+              <div className="flex flex-col items-center justify-center h-64 md:h-80 bg-gray-50 rounded-lg border-2 border-dashed border-gray-200">
                 <div className="text-center">
                   <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center mb-4 mx-auto">
                     <Sparkles className="w-8 h-8 text-gray-400" />
@@ -293,23 +326,22 @@ const PatternGeneratorPage = () => {
                     </span>
                   </div>
                 </div>
-              )}
-            </div>
-
-            {/* Pattern Features */}
-            <div className="mt-6 p-4 bg-blue-50 rounded-lg">
-              <h3 className="font-medium text-blue-900 mb-2">
-                Your pattern will include:
-              </h3>
-              <ul className="text-sm text-blue-800 space-y-1">
-                <li>• Complete materials list with yarn requirements</li>
-                <li>• Detailed gauge and tension information</li>
-                <li>• Step-by-step instructions with stitch counts</li>
-                <li>• Professional formatting and layout</li>
-                <li>• Finishing and assembly details</li>
-              </ul>
-            </div>
-          </Card>
+              </div>
+              {/* Pattern Features */}
+              <div className="mt-6 p-4 bg-blue-50 rounded-lg">
+                <h3 className="font-medium text-blue-900 mb-2">
+                  Your pattern will include:
+                </h3>
+                <ul className="text-sm text-blue-800 space-y-1">
+                  <li>• Complete materials list with yarn requirements</li>
+                  <li>• Detailed gauge and tension information</li>
+                  <li>• Step-by-step instructions with stitch counts</li>
+                  <li>• Professional formatting and layout</li>
+                  <li>• Finishing and assembly details</li>
+                </ul>
+              </div>
+            </Card>
+          )}
         </div>
       </div>
     </div>
