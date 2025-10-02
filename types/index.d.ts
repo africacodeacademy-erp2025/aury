@@ -65,7 +65,7 @@ export interface UploadImageResult {
   success: boolean;
   message?: string;
   url?: string;
-  imageId?: string;
+  imageId?: string; // Optional since not all uploads create Firestore documents
 }
 
 export interface PostComment {
@@ -178,6 +178,56 @@ export interface OrderProduct {
   name: string;
   quantity: number;
   price: number;
+}
+
+// -------------------
+// Pattern Types
+// -------------------
+export interface PatternData {
+  patternName: string;
+  projectType: string;
+  difficultyLevel: string;
+  yarnWeight: string;
+  hookSize: string;
+  sizeDimensions: string;
+  customInstructions?: string;
+  generatedPattern: string;
+}
+
+export interface PatternProduct extends Product {
+  productType: 'pattern';
+  patternContent: string;
+  patternData: PatternData;
+}
+
+export interface PatternProductParams extends CreateProductParams {
+  patternContent: string;
+  patternData: PatternData;
+  productType: 'pattern';
+}
+
+// -------------------
+// Email & PDF Types
+// -------------------
+export interface EmailParams {
+  to: string;
+  subject: string;
+  html: string;
+  attachments?: Array<{
+    filename: string;
+    content: Buffer;
+    contentType: string;
+  }>;
+}
+
+export interface PatternPDFData {
+  patternName: string;
+  customerName: string;
+  customerEmail: string;
+  purchaseDate: string;
+  patternContent: string;
+  productImage?: string;
+  patternData: PatternData;
 }
 
 // Make this a module

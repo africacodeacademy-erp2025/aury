@@ -29,7 +29,7 @@ export async function POST(request: Request) {
                         currency: "bwp",
                         product_data: {
                             name: product.name,
-                            images: ["https://joel-portfolio.web.app/images/about-img.jpg"], // FIXME: change imageUrl from firebase collection to a hosting service (vercel, cloudinary)
+                            images: product.imageUrl ? [product.imageUrl] : ["https://joel-portfolio.web.app/images/about-img.jpg"],
                         },
                     },
                     quantity: 1,
@@ -38,6 +38,11 @@ export async function POST(request: Request) {
             payment_method_types: ["card"],
             mode: "payment",
             automatic_tax: { enabled: true },
+            metadata: {
+                productId: data.productId,
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                productType: (product as any).productType || 'physical',
+            },
             return_url: `${request.headers.get("origin")}/marketplace/paymentResult?session_id={CHECKOUT_SESSION_ID}`,
         });
 

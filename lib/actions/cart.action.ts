@@ -67,7 +67,7 @@ export async function addToCart(productId: string, quantity: number = 1): Promis
         productImage: productData.imageUrl || null,
         sellerId: productData.sellerId,
         sellerName: productData.sellerName,
-        productType: productData.category === 'Crochet Patterns' ? 'pattern' : 'physical',
+        productType: productData.category === 'crochet pattern' ? 'pattern' : 'physical',
       };
       cartData.items.push(cartItem);
     }
