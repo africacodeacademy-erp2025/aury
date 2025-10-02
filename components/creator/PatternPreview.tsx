@@ -6,8 +6,6 @@ import { Card } from "@/components/ui/card";
 import { Edit, Store, Sparkles } from "lucide-react";
 import { PatternData } from "@/types";
 import PatternMarketplaceModal from "./PatternMarketplaceModal";
-// import PatternMarketplaceModal from "./PatternMarketplaceModal";
-
 interface PatternPreviewProps {
   patternData: PatternData;
   onEdit: () => void;
