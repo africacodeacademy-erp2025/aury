@@ -10,6 +10,8 @@ export interface User {
   email: string;
   id: string;
   role: "creator" | "customer" | "craft-business";
+  stripeAccountId?: string;
+  stripeOnboardingComplete?: boolean;
 }
 
 export interface SignUpParams {

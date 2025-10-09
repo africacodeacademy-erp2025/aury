@@ -125,9 +125,17 @@ export async function getCurrentUser(): Promise<User | null> {
 
     if (!userRecord.exists) return null;
 
+    const userData = userRecord.data();
+    if (!userData) return null;
+
+    // Only return serializable fields to avoid Timestamp serialization errors
     return {
-      ...userRecord.data(),
       id: userRecord.id,
+      name: userData.name || "",
+      email: userData.email || "",
+      role: userData.role || "customer",
+      stripeAccountId: userData.stripeAccountId,
+      stripeOnboardingComplete: userData.stripeOnboardingComplete,
     } as User;
 
   } catch (error) {

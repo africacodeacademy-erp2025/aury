@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import ProductModal from "@/components/creator/ProductModal";
+import StripeConnectStatus from "@/components/creator/StripeConnectStatus";
 import {
   Plus,
   Camera,
@@ -21,9 +22,22 @@ import {
   doc,
   getDoc,
 } from "firebase/firestore";
-import type { Product, Follower, Order } from "@/types";
+import type { Product, Follower, Order, User } from "@/types";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+
+// Helper function to serialize Firebase data
+const serializeData = (data: any) => {
+  const serialized: any = { ...data };
+  // Convert Timestamps to ISO strings
+  if (serialized.createdAt?.toDate) {
+    serialized.createdAt = serialized.createdAt.toDate().toISOString();
+  }
+  if (serialized.updatedAt?.toDate) {
+    serialized.updatedAt = serialized.updatedAt.toDate().toISOString();
+  }
+  return serialized;
+};
 
 interface DashboardPost {
   id: string;
@@ -36,6 +50,7 @@ interface DashboardPost {
 export default function CreatorDashboardPage() {
   const router = useRouter();
   const [userId, setUserId] = useState<string | null>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [posts, setPosts] = useState<DashboardPost[]>([]);
   const [items, setItems] = useState<Product[]>([]);
@@ -59,6 +74,22 @@ export default function CreatorDashboardPage() {
       setLoading(true);
 
       try {
+        // ---------- User Data ----------
+        const userDoc = await getDoc(doc(firebaseDb, "users", uid));
+        if (userDoc.exists()) {
+          const userData = userDoc.data();
+          // Only extract plain serializable fields
+          setUser({
+            id: uid,
+            name: userData.name || "",
+            email: userData.email || "",
+            role: userData.role || "creator",
+            stripeAccountId: userData.stripeAccountId || undefined,
+            stripeOnboardingComplete: userData.stripeOnboardingComplete || false,
+          });
+          setFollowers(userData.followers || []);
+        }
+
         // ---------- Products ----------
         const productsSnap = await getDocs(
           query(
@@ -69,7 +100,7 @@ export default function CreatorDashboardPage() {
         setItems(
           productsSnap.docs.map((doc) => ({
             id: doc.id,
-            ...doc.data(),
+            ...serializeData(doc.data()),
           })) as Product[]
         );
 
@@ -84,16 +115,12 @@ export default function CreatorDashboardPage() {
         setPosts(
           postsSnap.docs.map((doc) => ({
             id: doc.id,
-            ...doc.data(),
+            ...serializeData(doc.data()),
           })) as DashboardPost[]
         );
 
         // ---------- Followers (from user document) ----------
-        const userDoc = await getDoc(doc(firebaseDb, "users", uid));
-        if (userDoc.exists()) {
-          const data = userDoc.data();
-          setFollowers(data.followers || []);
-        }
+        // Already loaded above with user data
 
         // ---------- Orders ----------
         const ordersSnap = await getDocs(
@@ -361,6 +388,9 @@ export default function CreatorDashboardPage() {
 
           {/* Sidebar */}
           <div className="space-y-6">
+            {/* Stripe Connect Status */}
+            {user && <StripeConnectStatus user={user} />}
+
             <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg border">
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
                 Quick Actions

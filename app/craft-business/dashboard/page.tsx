@@ -1,15 +1,55 @@
 "use client";
 
 import ProductModal from '@/components/creator/ProductModal';
+import StripeConnectStatus from '@/components/creator/StripeConnectStatus';
 import { Plus } from 'lucide-react';
-import React, { useState } from "react";
-
-const deleteLater = () => {
-  console.log("Delete me")
-}
+import React, { useState, useEffect } from "react";
+import { onAuthStateChanged } from "firebase/auth";
+import { firebaseAuth, firebaseDb } from "@/firebase/client";
+import { doc, getDoc } from "firebase/firestore";
+import type { User } from "@/types";
 
 export default function CraftBusinessDashboardPage() {
   const [isProductModalOpen, setIsProductModalOpen] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(firebaseAuth, async (authUser) => {
+      if (!authUser) {
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const userDoc = await getDoc(doc(firebaseDb, "users", authUser.uid));
+        if (userDoc.exists()) {
+          const userData = userDoc.data();
+          // Only extract plain serializable fields
+          setUser({
+            id: authUser.uid,
+            name: userData.name || "",
+            email: userData.email || "",
+            role: userData.role || "craft-business",
+            stripeAccountId: userData.stripeAccountId || undefined,
+            stripeOnboardingComplete: userData.stripeOnboardingComplete || false,
+          });
+        }
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+      } finally {
+        setLoading(false);
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  if (loading) {
+    return (
+      <p className="text-center mt-10 text-gray-500">Loading dashboard...</p>
+    );
+  }
 
   return (
     <>
@@ -24,6 +64,13 @@ export default function CraftBusinessDashboardPage() {
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {/* Stripe Connect Status */}
+          {user && (
+            <div className="lg:col-span-3">
+              <StripeConnectStatus user={user} />
+            </div>
+          )}
+
           <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700">
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Quick Stats</h3>
             <div className="space-y-2">
@@ -70,7 +117,7 @@ export default function CraftBusinessDashboardPage() {
       <ProductModal 
         isOpen={isProductModalOpen} 
         onClose={() => setIsProductModalOpen(false)}
-        onSuccess={deleteLater}
+        onSuccess={() => {}}
       />
     </>
   );
