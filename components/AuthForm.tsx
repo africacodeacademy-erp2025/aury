@@ -12,7 +12,10 @@ import { Button } from "./ui/button";
 import Link from "next/link";
 import Loader from "./Loader";
 import { getCurrentUser, signIn, signUp } from "@/lib/actions/auth.action";
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+} from "firebase/auth";
 import { firebaseAuth } from "@/firebase/client";
 import { Controller } from "react-hook-form";
 import { FormType } from "@/types";
@@ -34,9 +37,10 @@ const authFormSchema = (type: FormType) => {
     password: z.string().min(6, {
       message: "Password must be at least 6 characters long",
     }),
-    role: type === "sign-up"
-      ? z.enum(["creator", "customer", "craft-business"])
-      : z.enum(["creator", "customer", "craft-business"]).optional(),
+    role:
+      type === "sign-up"
+        ? z.enum(["creator", "customer", "craft-business"])
+        : z.enum(["creator", "customer", "craft-business"]).optional(),
   });
 };
 
@@ -53,7 +57,7 @@ const AuthForm = ({ type }: { type: FormType }) => {
       name: "",
       email: "",
       password: "",
-  role: "customer",
+      role: "customer",
     },
   });
 
@@ -63,7 +67,12 @@ const AuthForm = ({ type }: { type: FormType }) => {
 
     try {
       if (type === "sign-up") {
-        const { name, email, password, role } = values as { name: string; email: string; password: string; role: "creator"|"customer" };
+        const { name, email, password, role } = values as {
+          name: string;
+          email: string;
+          password: string;
+          role: "creator" | "customer";
+        };
         const userCredential = await createUserWithEmailAndPassword(
           firebaseAuth,
           email,
@@ -83,11 +92,10 @@ const AuthForm = ({ type }: { type: FormType }) => {
           return;
         }
 
-  toast.success("Account Created Successfully. Please Sign In.");
-  router.push("/sign-in");
+        toast.success("Account Created Successfully. Please Sign In.");
+        router.push("/sign-in");
       } else {
         const { email, password } = values;
-        console.log(values);
 
         const userCredential = await signInWithEmailAndPassword(
           firebaseAuth,
@@ -121,7 +129,6 @@ const AuthForm = ({ type }: { type: FormType }) => {
         } else {
           router.push("/");
         }
-        console.log("Sign In Values:", values);
       }
     } catch (error) {
       console.error("Error submitting form:", error);
@@ -136,86 +143,84 @@ const AuthForm = ({ type }: { type: FormType }) => {
   return loading ? (
     <Loader />
   ) : (
-      <div className="card-border-custom border-t border-slate-200 lg:min-w-[566px]">
-        <div className="flex flex-col gap-6 card py-14 px-10">
-          <div className="flex flex-row gap-2 justify-center items-center">
-            <Image src="/aury-logo.png" alt="logo" width={50} height={50} />
-            <h2 className="text-primary-600 dark:text-primary-100">
-              Aury
-            </h2>
-          </div>
-
-            <h3 className="text-xl font-semibold text-center">
-            {isSignIn ? "Sign In to Your Account" : "Create Your Account"}
-            </h3>
-
-          <Form {...form}>
-            <form
-              onSubmit={form.handleSubmit(onSubmit)}
-              className="w-full space-y-6 mt-4 form"
-            >
-              {!isSignIn && (
-                <FormField
-                  name="name"
-                  control={form.control}
-                  label="Name"
-                  placeholder="Your name.."
-                />
-              )}
-
-              <FormField
-                name="email"
-                control={form.control}
-                label="Email"
-                placeholder="Your email address.."
-                type="email"
-              />
-
-              <FormField
-                name="password"
-                control={form.control}
-                label="Password"
-                placeholder="Enter your password.."
-                type="password"
-              />
-
-              {!isSignIn && (
-                <Controller
-                  name="role"
-                  control={form.control}
-                  render={({ field }) => (
-                    <div>
-                      <label className="label">Role</label>
-                      <select
-                        {...field}
-                        className="w-full mt-2 border rounded-md px-3 py-2 bg-white text-gray-900 dark:bg-gray-800 dark:text-white"
-                      >
-                        <option value="customer">Customer</option>
-                        <option value="creator">Creator</option>
-                        <option value="craft-business">Craft Business</option>
-                      </select>
-                    </div>
-                  )}
-                />
-              )}
-
-              <Button type="submit" className="btn">
-                {isSignIn ? "Sign In" : "Create an Account"}
-              </Button>
-            </form>
-          </Form>
-
-          <p className="text-center">
-            {isSignIn ? "No account yet?" : "Have an account already?"}{" "}
-            <Link
-              href={!isSignIn ? "/sign-in" : "/sign-up"}
-              className="font-bold text-user-primary ml-1"
-            >
-              {!isSignIn ? "Sign In" : "Sign Up"}
-            </Link>
-          </p>
+    <div className="card-border-custom border-t border-slate-200 lg:min-w-[566px]">
+      <div className="flex flex-col gap-6 card py-14 px-10">
+        <div className="flex flex-row gap-2 justify-center items-center">
+          <Image src="/aury-logo.png" alt="logo" width={50} height={50} />
+          <h2 className="text-primary-600 dark:text-primary-100">Aury</h2>
         </div>
+
+        <h3 className="text-xl font-semibold text-center">
+          {isSignIn ? "Sign In to Your Account" : "Create Your Account"}
+        </h3>
+
+        <Form {...form}>
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="w-full space-y-6 mt-4 form"
+          >
+            {!isSignIn && (
+              <FormField
+                name="name"
+                control={form.control}
+                label="Name"
+                placeholder="Your name.."
+              />
+            )}
+
+            <FormField
+              name="email"
+              control={form.control}
+              label="Email"
+              placeholder="Your email address.."
+              type="email"
+            />
+
+            <FormField
+              name="password"
+              control={form.control}
+              label="Password"
+              placeholder="Enter your password.."
+              type="password"
+            />
+
+            {!isSignIn && (
+              <Controller
+                name="role"
+                control={form.control}
+                render={({ field }) => (
+                  <div>
+                    <label className="label">Role</label>
+                    <select
+                      {...field}
+                      className="w-full mt-2 border rounded-md px-3 py-2 bg-white text-gray-900 dark:bg-gray-800 dark:text-white"
+                    >
+                      <option value="customer">Customer</option>
+                      <option value="creator">Creator</option>
+                      <option value="craft-business">Craft Business</option>
+                    </select>
+                  </div>
+                )}
+              />
+            )}
+
+            <Button type="submit" className="btn">
+              {isSignIn ? "Sign In" : "Create an Account"}
+            </Button>
+          </form>
+        </Form>
+
+        <p className="text-center">
+          {isSignIn ? "No account yet?" : "Have an account already?"}{" "}
+          <Link
+            href={!isSignIn ? "/sign-in" : "/sign-up"}
+            className="font-bold text-user-primary ml-1"
+          >
+            {!isSignIn ? "Sign In" : "Sign Up"}
+          </Link>
+        </p>
       </div>
+    </div>
   );
 };
 

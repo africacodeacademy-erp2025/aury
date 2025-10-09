@@ -20,14 +20,12 @@ const PaymentResultPage = () => {
       try {
         const response = await fetch(`/api/payments/${sessionId}`);
         const data = await response.json();
-        console.log("Session data:", data);
         setSession(data);
 
 
         // If payment was successful and it's a pattern product, deliver the pattern
         if (data.payment_status === "paid" && data.metadata?.productId) {
           try {
-            console.log("Delivering pattern for product:", data.metadata.productId);
             const deliveryResponse = await fetch('/api/patterns/deliver', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },

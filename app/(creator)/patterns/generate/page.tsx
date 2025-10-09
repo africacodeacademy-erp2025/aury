@@ -60,7 +60,6 @@ const PatternGeneratorPage = () => {
       }
 
       toast.success(data.message);
-      console.log("Generated Pattern:", data.pattern);
 
       // Show pattern in preview card instead of console
       setGeneratedPattern(data.pattern); // save pattern into state
