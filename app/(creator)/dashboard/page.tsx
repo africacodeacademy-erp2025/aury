@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import ProductModal from "@/components/creator/ProductModal";
+import PaystackConnectStatus from "@/components/creator/PaystackConnectStatus";
 import {
   Plus,
   Camera,
@@ -21,7 +22,7 @@ import {
   doc,
   getDoc,
 } from "firebase/firestore";
-import type { Product, Follower, Order } from "@/types";
+import type { Product, Follower, Order, User } from "@/types";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 
@@ -36,6 +37,7 @@ interface DashboardPost {
 export default function CreatorDashboardPage() {
   const router = useRouter();
   const [userId, setUserId] = useState<string | null>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [posts, setPosts] = useState<DashboardPost[]>([]);
   const [items, setItems] = useState<Product[]>([]);
@@ -59,6 +61,27 @@ export default function CreatorDashboardPage() {
       setLoading(true);
 
       try {
+        // ---------- User Data ----------
+        const userDoc = await getDoc(doc(firebaseDb, "users", uid));
+        if (userDoc.exists()) {
+          const userData = userDoc.data();
+          // Only extract serializable fields, exclude Firestore timestamps and complex objects
+          setUser({
+            id: uid,
+            name: userData.name || "",
+            email: userData.email || "",
+            role: userData.role || "creator",
+            stripeAccountId: userData.stripeAccountId,
+            stripeOnboardingComplete: userData.stripeOnboardingComplete,
+            paystackSubaccountCode: userData.paystackSubaccountCode,
+            paystackSubaccountId: userData.paystackSubaccountId,
+            paystackOnboardingComplete: userData.paystackOnboardingComplete || false,
+            paymentProvider: userData.paymentProvider || 'paystack',
+            // Don't include: followers, following, updatedAt, createdAt, or any Firestore timestamps
+          });
+          setFollowers(userData.followers || []);
+        }
+
         // ---------- Products ----------
         const productsSnap = await getDocs(
           query(
@@ -89,11 +112,7 @@ export default function CreatorDashboardPage() {
         );
 
         // ---------- Followers (from user document) ----------
-        const userDoc = await getDoc(doc(firebaseDb, "users", uid));
-        if (userDoc.exists()) {
-          const data = userDoc.data();
-          setFollowers(data.followers || []);
-        }
+        // Already loaded above with user data
 
         // ---------- Orders ----------
         const ordersSnap = await getDocs(
@@ -361,6 +380,9 @@ export default function CreatorDashboardPage() {
 
           {/* Sidebar */}
           <div className="space-y-6">
+            {/* Paystack Connect Status */}
+            {user && <PaystackConnectStatus user={user} />}
+
             <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg border">
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
                 Quick Actions

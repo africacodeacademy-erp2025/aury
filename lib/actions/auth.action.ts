@@ -125,9 +125,24 @@ export async function getCurrentUser(): Promise<User | null> {
 
     if (!userRecord.exists) return null;
 
+    const userData = userRecord.data();
+    
+    // Only return serializable fields, exclude Firestore timestamps and complex objects
     return {
-      ...userRecord.data(),
       id: userRecord.id,
+      name: userData?.name || "",
+      email: userData?.email || "",
+      role: userData?.role || "customer",
+      stripeAccountId: userData?.stripeAccountId,
+      stripeOnboardingComplete: userData?.stripeOnboardingComplete,
+      paystackSubaccountId: userData?.paystackSubaccountId,
+      paystackSubaccountCode: userData?.paystackSubaccountCode,
+      paystackOnboardingComplete: userData?.paystackOnboardingComplete || false,
+      paystackRecipientCode: userData?.paystackRecipientCode,
+      paystackAccountMeta: userData?.paystackAccountMeta,
+      paymentProvider: userData?.paymentProvider || 'paystack',
+      migratedAt: userData?.migratedAt,
+      // Explicitly exclude: updatedAt, createdAt, followers, following, and any other Firestore timestamps
     } as User;
 
   } catch (error) {
