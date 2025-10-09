@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import jsPDF from 'jspdf';
 import { PatternPDFData } from '@/types';
@@ -60,6 +61,7 @@ export async function generatePatternPDF(data: PatternPDFData): Promise<Buffer> 
       margin, 15, 30, 30
     );
   } catch (err) {
+    console.log(err)
     // Fallback: draw placeholder if image fails
     pdf.setFillColor(255, 255, 255);
     pdf.rect(margin, 15, 30, 30, 'F');
