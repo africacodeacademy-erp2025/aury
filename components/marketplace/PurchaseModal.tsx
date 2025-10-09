@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   Dialog,
   DialogClose,
@@ -18,24 +18,34 @@ import {
 } from "@stripe/react-stripe-js";
 import { toast } from "sonner";
 import Image from "next/image";
+import { onAuthStateChanged } from "firebase/auth";
+import { firebaseAuth } from "@/firebase/client";
 
 const PurchaseModal = ({ productId }: { productId: string }) => {
   const stripePromise = loadStripe(
     process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!
   );
+  const [userId, setUserId] = useState<string | null>(null);
 
-  console.log("Arrived here");
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(firebaseAuth, (user) => {
+      setUserId(user?.uid || null);
+    });
+    return () => unsubscribe();
+  }, []);
+
   const fetchClientSecret = useCallback(async () => {
-    console.log("Arrived in function");
     try {
       const response = await fetch("/api/payments", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ productId }),
+        body: JSON.stringify({ 
+          productId,
+          customerId: userId,
+        }),
       });
-      console.log("Arrived in function after fetch");
 
       const data = await response.json();
       if (data?.error) {
@@ -45,8 +55,9 @@ const PurchaseModal = ({ productId }: { productId: string }) => {
       return data.client_secret;
     } catch (error) {
       console.error("Error creating checkout session: ", error);
+      throw error;
     }
-  }, [productId]);
+  }, [productId, userId]);
 
   const options = { fetchClientSecret };
 
