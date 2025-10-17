@@ -1,7 +1,7 @@
 "use client";
 
 import ProductModal from '@/components/creator/ProductModal';
-import StripeConnectStatus from '@/components/creator/StripeConnectStatus';
+import PayPalOnboarding from '@/components/creator/PayPalOnboarding';
 import { Plus } from 'lucide-react';
 import React, { useState, useEffect } from "react";
 import { onAuthStateChanged } from "firebase/auth";
@@ -33,6 +33,9 @@ export default function CraftBusinessDashboardPage() {
             role: userData.role || "craft-business",
             stripeAccountId: userData.stripeAccountId || undefined,
             stripeOnboardingComplete: userData.stripeOnboardingComplete || false,
+            paypalEmail: userData.paypalEmail || undefined,
+            payoutMethod: userData.payoutMethod || undefined,
+            onboardingComplete: userData.onboardingComplete || false,
           });
         }
       } catch (error) {
@@ -64,10 +67,10 @@ export default function CraftBusinessDashboardPage() {
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {/* Stripe Connect Status */}
+          {/* PayPal Onboarding */}
           {user && (
             <div className="lg:col-span-3">
-              <StripeConnectStatus user={user} />
+              <PayPalOnboarding user={user} />
             </div>
           )}
 

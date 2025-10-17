@@ -10,7 +10,7 @@ const layout = async ({ children }: { children: ReactNode }) => {
   } else if (user?.role === "craft-business") {
     redirect("/craft-business/dashboard");
   } else if (user?.role === "customer") {
-    redirect("/");
+    redirect("/marketplace");
   }
 
   return <div className="auth-layout">{children}</div>;

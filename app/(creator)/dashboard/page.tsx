@@ -3,7 +3,7 @@
 
 import React, { useEffect, useState } from "react";
 import ProductModal from "@/components/creator/ProductModal";
-import StripeConnectStatus from "@/components/creator/StripeConnectStatus";
+import PayPalOnboarding from "@/components/creator/PayPalOnboarding";
 import {
   Plus,
   Camera,
@@ -87,6 +87,9 @@ export default function CreatorDashboardPage() {
             stripeAccountId: userData.stripeAccountId || undefined,
             stripeOnboardingComplete:
               userData.stripeOnboardingComplete || false,
+            paypalEmail: userData.paypalEmail || undefined,
+            payoutMethod: userData.payoutMethod || undefined,
+            onboardingComplete: userData.onboardingComplete || false,
           });
           setFollowers(userData.followers || []);
         }
@@ -389,8 +392,8 @@ export default function CreatorDashboardPage() {
 
           {/* Sidebar */}
           <div className="space-y-6">
-            {/* Stripe Connect Status */}
-            {user && <StripeConnectStatus user={user} />}
+            {/* PayPal Onboarding */}
+            {user && <PayPalOnboarding user={user} />}
 
             <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg border">
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">

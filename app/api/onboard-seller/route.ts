@@ -1,62 +1,59 @@
 import { NextResponse } from "next/server";
-import { stripe } from "@/lib/stripe";
 import { firebaseDb } from "@/firebase/admin";
+import { validatePayPalEmail } from "@/lib/paypal";
 
 /**
- * This route creates a Stripe Express account for a seller
- * and returns an onboarding URL.
+ * This route saves a seller's PayPal email for payouts
+ * Simple and fast onboarding - just collect PayPal email!
  */
 export async function POST(request: Request) {
   try {
-    const { sellerId } = await request.json();
+    const body = await request.json();
+    console.log("Received request body:", body);
+    
+    const { sellerId, paypalEmail } = body;
 
     if (!sellerId) {
       return NextResponse.json({ error: "Missing sellerId" }, { status: 400 });
     }
 
-    // Check if user already has a Stripe account
+    if (!paypalEmail) {
+      console.log("PayPal email is missing. Body received:", body);
+      return NextResponse.json({ error: "Missing PayPal email" }, { status: 400 });
+    }
+
+    // Validate PayPal email format
+    if (!validatePayPalEmail(paypalEmail)) {
+      return NextResponse.json(
+        { error: "Invalid PayPal email format" },
+        { status: 400 }
+      );
+    }
+
+    // Check if user exists
     const userDoc = await firebaseDb.collection("users").doc(sellerId).get();
     if (!userDoc.exists) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    const userData = userDoc.data();
-    let accountId = userData?.stripeAccountId;
-
-    // If no account exists, create one
-    if (!accountId) {
-      const account = await stripe.accounts.create({
-        type: "express",
-        capabilities: {
-          transfers: { requested: true },
-          card_payments: { requested: true },
-        },
-        business_type: "individual",
-      });
-
-      accountId = account.id;
-
-      // Save the account ID to Firebase
-      await firebaseDb.collection("users").doc(sellerId).update({
-        stripeAccountId: accountId,
-        stripeOnboardingComplete: false,
-      });
-    }
-
-    const origin = process.env.BASE_URL || request.headers.get("origin");
-
-    // Generate an onboarding link
-    const accountLink = await stripe.accountLinks.create({
-      account: accountId,
-      refresh_url: `${origin}/onboarding/refresh?sellerId=${sellerId}`,
-      return_url: `${origin}/onboarding/complete?sellerId=${sellerId}`,
-      type: "account_onboarding",
+    // Save PayPal email and mark onboarding as complete
+    await firebaseDb.collection("users").doc(sellerId).update({
+      paypalEmail: paypalEmail.toLowerCase().trim(),
+      payoutMethod: "paypal",
+      onboardingComplete: true,
+      onboardedAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     });
 
-    // Return the URL so the frontend can redirect
-    return NextResponse.json({ url: accountLink.url });
+    return NextResponse.json({
+      success: true,
+      message: "PayPal email saved successfully! You can now receive payouts.",
+    });
   } catch (error) {
-    console.error("Error creating onboarding link:", error);
-    return NextResponse.json({ error: "Failed to onboard seller" }, { status: 500 });
+    console.error("Error saving PayPal email:", error);
+    return NextResponse.json(
+      { error: "Failed to save PayPal email" },
+      { status: 500 }
+    );
   }
 }

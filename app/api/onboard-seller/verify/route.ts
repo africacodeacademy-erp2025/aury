@@ -1,10 +1,9 @@
 import { NextResponse } from "next/server";
-import { stripe } from "@/lib/stripe";
 import { firebaseDb } from "@/firebase/admin";
 
 /**
- * This route verifies the Stripe onboarding status for a seller
- * and updates the database accordingly.
+ * This route verifies the PayPal onboarding status for a seller
+ * Since PayPal onboarding is instant (just email), this just checks if they have a PayPal email
  */
 export async function GET(request: Request) {
   try {
@@ -22,33 +21,22 @@ export async function GET(request: Request) {
     }
 
     const userData = userDoc.data();
-    const stripeAccountId = userData?.stripeAccountId;
+    const paypalEmail = userData?.paypalEmail;
+    const onboardingComplete = userData?.onboardingComplete || false;
 
-    if (!stripeAccountId) {
-      return NextResponse.json(
-        { error: "No Stripe account found for this seller" },
-        { status: 404 }
-      );
+    if (!paypalEmail) {
+      return NextResponse.json({
+        success: false,
+        onboardingComplete: false,
+        message: "No PayPal email found. Please complete onboarding.",
+      });
     }
-
-    // Retrieve the account from Stripe
-    const account = await stripe.accounts.retrieve(stripeAccountId);
-
-    // Check if onboarding is complete
-    const onboardingComplete = account.details_submitted || false;
-
-    // Update Firebase with the onboarding status
-    await firebaseDb.collection("users").doc(sellerId).update({
-      stripeOnboardingComplete: onboardingComplete,
-      stripeChargesEnabled: account.charges_enabled || false,
-      stripePayoutsEnabled: account.payouts_enabled || false,
-    });
 
     return NextResponse.json({
       success: true,
       onboardingComplete,
-      chargesEnabled: account.charges_enabled,
-      payoutsEnabled: account.payouts_enabled,
+      paypalEmail: paypalEmail,
+      payoutMethod: userData?.payoutMethod || "paypal",
     });
   } catch (error) {
     console.error("Error verifying onboarding status:", error);

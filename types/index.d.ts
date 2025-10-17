@@ -10,8 +10,19 @@ export interface User {
   email: string;
   id: string;
   role: "creator" | "customer" | "craft-business";
+  
+  // Legacy Stripe fields (deprecated)
   stripeAccountId?: string;
   stripeOnboardingComplete?: boolean;
+  
+  // PayPal payout fields
+  paypalEmail?: string;
+  payoutMethod?: "paypal" | "bank" | "stripe";
+  onboardingComplete?: boolean;
+  onboardedAt?: string;
+  lastPayoutAt?: string;
+  lastPayoutAmount?: number;
+  pendingEarnings?: number;
 }
 
 export interface SignUpParams {
@@ -170,6 +181,7 @@ export interface Order {
   products: OrderProduct[];
   total: number;
   status: "Pending" | "Processing" | "Shipped" | "Completed" | "Cancelled";
+  payoutProcessed?: boolean; // Track if seller has been paid
   createdAt: {
     toDate: () => Date;
   } | null;
@@ -180,6 +192,24 @@ export interface OrderProduct {
   name: string;
   quantity: number;
   price: number;
+}
+
+// -------------------
+// Payout Types
+// -------------------
+export interface Payout {
+  id: string;
+  sellerId: string;
+  paypalEmail: string;
+  amount: number;
+  payoutFee: number;
+  netAmount: number;
+  currency: string;
+  status: string;
+  batchId: string;
+  createdAt: string;
+  method: "paypal";
+  triggeredBy?: "admin" | "automatic" | "manual";
 }
 
 // -------------------
