@@ -6,7 +6,7 @@ import React, { ReactNode } from 'react'
 const CraftBusinessLayout = async ({ children }: { children: ReactNode }) => {
   const user = await getCurrentUser();
   if (!user) redirect("/sign-in");
-  if (user.role !== "craft-business") redirect("/");
+  if (user.role !== "craft-business") redirect("/community");
 
   return (
     <div className="flex min-h-screen bg-gray-50 dark:bg-gray-900">
