@@ -5,7 +5,9 @@ services:
       context: .
       dockerfile: Dockerfile.prod
       args:
-        # Firebase Configuration
+        # ============================================
+        # Firebase Client Configuration (Public)
+        # ============================================
         NEXT_PUBLIC_FIREBASE_API_KEY: ${NEXT_PUBLIC_FIREBASE_API_KEY}
         NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: ${NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN}
         NEXT_PUBLIC_FIREBASE_PROJECT_ID: ${NEXT_PUBLIC_FIREBASE_PROJECT_ID}
@@ -14,17 +16,66 @@ services:
         NEXT_PUBLIC_FIREBASE_APP_ID: ${NEXT_PUBLIC_FIREBASE_APP_ID}
         NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID: ${NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID}
 
-        # Firebase Admin Configuration
+        # ============================================
+        # Firebase Admin Configuration (Server)
+        # ============================================
         FIREBASE_CLIENT_EMAIL: ${FIREBASE_CLIENT_EMAIL}
         FIREBASE_PRIVATE_KEY: ${FIREBASE_PRIVATE_KEY}
         FIREBASE_PROJECT_ID: ${FIREBASE_PROJECT_ID}
 
-        # Stripe Configuration
+        # ============================================
+        # Paystack Configuration
+        # ============================================
+        NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY: ${NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY}
+        PAYSTACK_SECRET_KEY: ${PAYSTACK_SECRET_KEY}
+
+        # ============================================
+        # Stripe Configuration (Legacy)
+        # ============================================
         NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: ${NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY}
         STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY}
         STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET}
 
-        # Other Configuration
+        # ============================================
+        # PayPal Configuration
+        # ============================================
+        PAYPAL_CLIENT_ID: ${PAYPAL_CLIENT_ID}
+        PAYPAL_CLIENT_SECRET: ${PAYPAL_CLIENT_SECRET}
+
+        # ============================================
+        # AI API Keys
+        # ============================================
+        GEMINI_API_KEY: ${GEMINI_API_KEY}
+        OPENAI_API_KEY: ${OPENAI_API_KEY}
+
+        # ============================================
+        # Image Upload
+        # ============================================
+        IMGBB_API_KEY: ${IMGBB_API_KEY}
+
+        # ============================================
+        # Email Configuration
+        # ============================================
+        SMTP_HOST: ${SMTP_HOST}
+        SMTP_PORT: ${SMTP_PORT}
+        EMAIL_USER: ${EMAIL_USER}
+        EMAIL_PASSWORD: ${EMAIL_PASSWORD}
+
+        # ============================================
+        # Platform Configuration
+        # ============================================
+        PLATFORM_FEE_PERCENTAGE: ${PLATFORM_FEE_PERCENTAGE:-5}
+        DEFAULT_CURRENCY: ${DEFAULT_CURRENCY:-ZAR}
+
+        # ============================================
+        # Application URLs
+        # ============================================
+        BASE_URL: ${BASE_URL}
+        NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL}
+
+        # ============================================
+        # System Configuration
+        # ============================================
         NODE_ENV: ${NODE_ENV:-production}
         NEXT_TELEMETRY_DISABLED: ${NEXT_TELEMETRY_DISABLED:-1}
 

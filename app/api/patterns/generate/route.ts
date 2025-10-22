@@ -85,10 +85,12 @@ Include:
         );
     } catch (error) {
         console.error("Pattern generation error:", error);
+        console.log("Pattern generation error:", error);
         return NextResponse.json(
             {
                 success: false,
-                message: "Pattern generation failed. Please try again.",
+                message: error instanceof Error ? error.message : "Pattern generation failed. Please try again.",
+                // message: "Pattern generation failed. Please try again.",
             },
             { status: 500 }
         );
