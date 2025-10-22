@@ -1,9 +1,13 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 /**
  * Paystack API Client
  * 
  * This module provides a typed interface to the Paystack API.
  * Documentation: https://paystack.com/docs/api/
  */
+
+import crypto from 'crypto';
 
 const PAYSTACK_BASE_URL = 'https://api.paystack.co';
 
@@ -576,7 +580,6 @@ export function verifyPaystackWebhook(
   payload: string,
   signature: string
 ): boolean {
-  const crypto = require('crypto');
   const secret = process.env.PAYSTACK_SECRET_KEY;
 
   if (!secret) {

@@ -13,7 +13,6 @@ import {
   X,
   LogOut,
   UserCircle,
-  LogIn,
 } from "lucide-react";
 import { getCurrentUser, signOut } from "@/lib/actions/auth.action";
 import PostModal from "./PostModal";
@@ -159,7 +158,7 @@ export default function Sidebar() {
                   `}
                   aria-label={item.name}
                 >
-                  <Icon className="h-5 w-5 flex-shrink-0" />
+                  <Icon className="h-5 w-5 shrink-0" />
                   {!isCollapsed && (
                     <span className="font-medium">{item.name}</span>
                   )}

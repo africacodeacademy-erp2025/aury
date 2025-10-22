@@ -120,8 +120,8 @@ const PurchaseModal = ({ productId }: { productId: string }) => {
 
           <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
             <p className="text-sm text-gray-600">
-              You'll be redirected to Paystack's secure payment page to complete your purchase.
-              After payment, you'll be returned to Aury to view your order.
+              You&apos;ll be redirected to Paystack&apos;s secure payment page to complete your purchase.
+              After payment, you&apos;ll be returned to Aury to view your order.
             </p>
           </div>
 

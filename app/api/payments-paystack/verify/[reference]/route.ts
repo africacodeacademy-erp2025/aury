@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 /**
  * GET /api/payments-paystack/verify/[reference]
  * 

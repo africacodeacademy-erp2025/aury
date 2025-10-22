@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { BadgeCheck, Loader, AlertCircle, Wallet, Building2 } from "lucide-react";
+import { BadgeCheck, Loader, Wallet, Building2 } from "lucide-react";
 import { toast } from "sonner";
 import { User } from "@/types";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -151,7 +151,7 @@ export default function PaystackConnectStatus({ user }: PaystackConnectStatusPro
           <CardContent>
             <div className="space-y-4">
               <div className="bg-white rounded-lg p-4 space-y-2">
-                <h4 className="font-semibold text-sm">What you'll need:</h4>
+                <h4 className="font-semibold text-sm">What you&apos;ll need:</h4>
                 <ul className="text-sm text-gray-600 space-y-1">
                   <li>✓ Bank account number</li>
                   <li>✓ Bank name</li>

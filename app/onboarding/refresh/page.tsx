@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Loader } from "lucide-react";
 import { toast } from "sonner";
@@ -9,7 +9,7 @@ import { toast } from "sonner";
  * This page is shown when Stripe onboarding needs to be refreshed.
  * It automatically re-initiates the onboarding process.
  */
-export default function OnboardingRefreshPage() {
+function OnboardingRefreshContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const sellerId = searchParams.get("sellerId");
@@ -55,5 +55,20 @@ export default function OnboardingRefreshPage() {
       </h2>
       <p className="text-gray-600 mt-2">Please wait while we redirect you.</p>
     </div>
+  );
+}
+
+export default function OnboardingRefreshPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="w-full h-screen flex flex-col items-center justify-center bg-gray-50">
+          <Loader className="w-12 h-12 animate-spin text-primary-600 mb-4" />
+          <h2 className="text-xl font-semibold text-gray-900">Loading...</h2>
+        </div>
+      }
+    >
+      <OnboardingRefreshContent />
+    </Suspense>
   );
 }

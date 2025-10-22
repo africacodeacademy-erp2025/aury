@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { BadgeCheck, Loader, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -10,7 +10,7 @@ import { toast } from "sonner";
  * This page is shown after a seller completes Stripe onboarding.
  * It verifies the account status and updates the database.
  */
-export default function OnboardingCompletePage() {
+function OnboardingCompleteContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const sellerId = searchParams.get("sellerId");
@@ -84,7 +84,7 @@ export default function OnboardingCompletePage() {
               <p className="text-gray-600 mb-6">{message}</p>
               <div className="w-full space-y-3">
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-left">
-                  <h3 className="font-semibold text-blue-900 mb-1">What's next?</h3>
+                  <h3 className="font-semibold text-blue-900 mb-1">What&apos;s next?</h3>
                   <ul className="text-sm text-blue-800 space-y-1">
                     <li>✓ Create and list your products</li>
                     <li>✓ Start receiving payments</li>
@@ -117,5 +117,25 @@ export default function OnboardingCompletePage() {
         </Button>
       </div>
     </div>
+  );
+}
+
+export default function OnboardingCompletePage() {
+  return (
+    <Suspense fallback={
+      <div className="w-full min-h-screen flex items-center justify-center bg-gray-50 p-4">
+        <div className="w-full max-w-md bg-white rounded-2xl shadow-md p-8">
+          <div className="flex flex-col items-center text-center">
+            <Loader className="w-16 h-16 animate-spin text-primary-600 mb-4" />
+            <h2 className="text-2xl font-semibold text-gray-900 mb-2">
+              Loading...
+            </h2>
+            <p className="text-gray-600">Please wait</p>
+          </div>
+        </div>
+      </div>
+    }>
+      <OnboardingCompleteContent />
+    </Suspense>
   );
 }
