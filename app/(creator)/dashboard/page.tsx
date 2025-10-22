@@ -3,7 +3,7 @@
 
 import React, { useEffect, useState } from "react";
 import ProductModal from "@/components/creator/ProductModal";
-import PayPalOnboarding from "@/components/creator/PayPalOnboarding";
+import PaystackConnectStatus from "@/components/creator/PaystackConnectStatus";
 import {
   Plus,
   Camera,
@@ -78,18 +78,19 @@ export default function CreatorDashboardPage() {
         const userDoc = await getDoc(doc(firebaseDb, "users", uid));
         if (userDoc.exists()) {
           const userData = userDoc.data();
-          // Only extract plain serializable fields
+          // Only extract serializable fields, exclude Firestore timestamps and complex objects
           setUser({
             id: uid,
             name: userData.name || "",
             email: userData.email || "",
             role: userData.role || "creator",
-            stripeAccountId: userData.stripeAccountId || undefined,
-            stripeOnboardingComplete:
-              userData.stripeOnboardingComplete || false,
-            paypalEmail: userData.paypalEmail || undefined,
-            payoutMethod: userData.payoutMethod || undefined,
-            onboardingComplete: userData.onboardingComplete || false,
+            stripeAccountId: userData.stripeAccountId,
+            stripeOnboardingComplete: userData.stripeOnboardingComplete,
+            paystackSubaccountCode: userData.paystackSubaccountCode,
+            paystackSubaccountId: userData.paystackSubaccountId,
+            paystackOnboardingComplete: userData.paystackOnboardingComplete || false,
+            paymentProvider: userData.paymentProvider || 'paystack',
+            // Don't include: followers, following, updatedAt, createdAt, or any Firestore timestamps
           });
           setFollowers(userData.followers || []);
         }
@@ -392,8 +393,8 @@ export default function CreatorDashboardPage() {
 
           {/* Sidebar */}
           <div className="space-y-6">
-            {/* PayPal Onboarding */}
-            {user && <PayPalOnboarding user={user} />}
+            {/* Paystack Connect Status */}
+            {user && <PaystackConnectStatus user={user} />}
 
             <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg border">
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">

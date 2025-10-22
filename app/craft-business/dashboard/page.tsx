@@ -1,7 +1,7 @@
 "use client";
 
 import ProductModal from '@/components/creator/ProductModal';
-import PayPalOnboarding from '@/components/creator/PayPalOnboarding';
+import PaystackConnectStatus from '@/components/creator/PaystackConnectStatus';
 import { Plus } from 'lucide-react';
 import React, { useState, useEffect } from "react";
 import { onAuthStateChanged } from "firebase/auth";
@@ -25,17 +25,19 @@ export default function CraftBusinessDashboardPage() {
         const userDoc = await getDoc(doc(firebaseDb, "users", authUser.uid));
         if (userDoc.exists()) {
           const userData = userDoc.data();
-          // Only extract plain serializable fields
+          // Only extract serializable fields, exclude Firestore timestamps
           setUser({
             id: authUser.uid,
             name: userData.name || "",
             email: userData.email || "",
             role: userData.role || "craft-business",
-            stripeAccountId: userData.stripeAccountId || undefined,
-            stripeOnboardingComplete: userData.stripeOnboardingComplete || false,
-            paypalEmail: userData.paypalEmail || undefined,
-            payoutMethod: userData.payoutMethod || undefined,
-            onboardingComplete: userData.onboardingComplete || false,
+            stripeAccountId: userData.stripeAccountId,
+            stripeOnboardingComplete: userData.stripeOnboardingComplete,
+            paystackSubaccountCode: userData.paystackSubaccountCode,
+            paystackSubaccountId: userData.paystackSubaccountId,
+            paystackOnboardingComplete: userData.paystackOnboardingComplete || false,
+            paymentProvider: userData.paymentProvider || 'paystack',
+            // Don't include: updatedAt, createdAt, or any Firestore timestamps
           });
         }
       } catch (error) {
@@ -67,10 +69,10 @@ export default function CraftBusinessDashboardPage() {
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {/* PayPal Onboarding */}
+          {/* Paystack Connect Status */}
           {user && (
             <div className="lg:col-span-3">
-              <PayPalOnboarding user={user} />
+              <PaystackConnectStatus user={user} />
             </div>
           )}
 

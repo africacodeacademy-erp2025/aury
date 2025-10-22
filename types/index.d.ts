@@ -11,18 +11,26 @@ export interface User {
   id: string;
   role: "creator" | "customer" | "craft-business";
   
-  // Legacy Stripe fields (deprecated)
+  // Legacy Stripe fields (keep for historical data)
   stripeAccountId?: string;
   stripeOnboardingComplete?: boolean;
   
-  // PayPal payout fields
-  paypalEmail?: string;
-  payoutMethod?: "paypal" | "bank" | "stripe";
-  onboardingComplete?: boolean;
-  onboardedAt?: string;
-  lastPayoutAt?: string;
-  lastPayoutAmount?: number;
-  pendingEarnings?: number;
+  // Paystack fields
+  paystackSubaccountId?: string;
+  paystackSubaccountCode?: string;
+  paystackOnboardingComplete: boolean;
+  paystackRecipientCode?: string;
+  paystackAccountMeta?: {
+    businessName?: string;
+    bankName?: string;
+    bankCode?: string;
+    accountNumber?: string;
+    currency?: string;
+  };
+  
+  // Payment provider
+  paymentProvider: 'stripe' | 'paystack';
+  migratedAt?: string;
 }
 
 export interface SignUpParams {
