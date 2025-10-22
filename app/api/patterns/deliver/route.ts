@@ -9,11 +9,6 @@ import { PatternPDFData } from "@/types";
 export async function POST(request: Request) {
   try {
     const { productId, customerEmail, customerName } = await request.json();
-    console.log("Deliver Route: ", {
-      ID: productId,
-      Email: customerEmail,
-      Name: customerName,
-    })
 
     // Validation
     if (!productId || !customerEmail || !customerName) {
@@ -42,7 +37,6 @@ export async function POST(request: Request) {
     }
 
     const product = productResult.product;
-    console.log("Product in deliver route:", product);
 
     // Check if it's a pattern product
     if (product.category !== 'crochet pattern') {
@@ -73,13 +67,6 @@ export async function POST(request: Request) {
       productImage: product.imageUrl || undefined,
       patternData,
     };
-
-    console.log("PDF Data prepared:", {
-      patternName: pdfData.patternName,
-      hasPatternContent: !!pdfData.patternContent,
-      patternContentLength: pdfData.patternContent?.length,
-      hasPatternData: !!pdfData.patternData,
-    });
 
     // Generate PDF
     const pdfBuffer = await generatePatternPDF(pdfData);

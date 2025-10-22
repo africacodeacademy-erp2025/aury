@@ -40,7 +40,7 @@ export async function POST(request: Request) {
     });
 
     const openaiData = await openaiResp.json();
-    console.log("OpenAI response:", openaiData);
+
     const imageUrlTemp = openaiData.data?.[0]?.url;
     if (!imageUrlTemp) {
       throw new Error("OpenAI did not return an image URL");

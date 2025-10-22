@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import React, { useEffect, useState } from "react";
@@ -26,11 +27,23 @@ import type { Product, Follower, Order, User } from "@/types";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 
+// Helper function to serialize Firebase data
+const serializeData = (data: any) => {
+  const serialized: any = { ...data };
+  // Convert Timestamps to ISO strings
+  if (serialized.createdAt?.toDate) {
+    serialized.createdAt = serialized.createdAt.toDate().toISOString();
+  }
+  if (serialized.updatedAt?.toDate) {
+    serialized.updatedAt = serialized.updatedAt.toDate().toISOString();
+  }
+  return serialized;
+};
+
 interface DashboardPost {
   id: string;
   imageUrl?: string;
   caption: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   createdAt?: any;
 }
 
@@ -92,7 +105,7 @@ export default function CreatorDashboardPage() {
         setItems(
           productsSnap.docs.map((doc) => ({
             id: doc.id,
-            ...doc.data(),
+            ...serializeData(doc.data()),
           })) as Product[]
         );
 
@@ -107,7 +120,7 @@ export default function CreatorDashboardPage() {
         setPosts(
           postsSnap.docs.map((doc) => ({
             id: doc.id,
-            ...doc.data(),
+            ...serializeData(doc.data()),
           })) as DashboardPost[]
         );
 

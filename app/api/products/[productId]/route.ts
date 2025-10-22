@@ -12,10 +12,13 @@ export async function GET(
 
   if (!result.success) {
     return NextResponse.json(
-      { message: result.message },
+      { success: false, message: result.message },
       { status: 404 }
     );
   }
 
-  return NextResponse.json(result.product);
+  return NextResponse.json({
+    success: true,
+    product: result.product
+  });
 }
