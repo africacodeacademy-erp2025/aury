@@ -127,7 +127,7 @@ const AuthForm = ({ type }: { type: FormType }) => {
         } else if (user?.role === "craft-business") {
           router.push("/craft-business/dashboard");
         } else {
-          router.push("/");
+          router.push("/marketplace");
         }
       }
     } catch (error) {
