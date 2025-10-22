@@ -78,6 +78,8 @@ services:
         # ============================================
         NODE_ENV: ${NODE_ENV:-production}
         NEXT_TELEMETRY_DISABLED: ${NEXT_TELEMETRY_DISABLED:-1}
+    env_file:
+      - .env.prod
 
     restart: unless-stopped
     ports:
