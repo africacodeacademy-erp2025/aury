@@ -13,6 +13,7 @@ import {
   X,
   LogOut,
   UserCircle,
+  LogIn,
 } from "lucide-react";
 import { getCurrentUser, signOut } from "@/lib/actions/auth.action";
 import PostModal from "./PostModal";
@@ -58,7 +59,6 @@ export default function Sidebar() {
   const handleSignOut = async () => {
     await signOut();
     router.push("/sign-in");
-    // window.location.href = '/sign-in';
   };
 
   return (

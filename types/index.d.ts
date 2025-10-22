@@ -10,8 +10,27 @@ export interface User {
   email: string;
   id: string;
   role: "creator" | "customer" | "craft-business";
+  
+  // Legacy Stripe fields (keep for historical data)
   stripeAccountId?: string;
   stripeOnboardingComplete?: boolean;
+  
+  // Paystack fields
+  paystackSubaccountId?: string;
+  paystackSubaccountCode?: string;
+  paystackOnboardingComplete: boolean;
+  paystackRecipientCode?: string;
+  paystackAccountMeta?: {
+    businessName?: string;
+    bankName?: string;
+    bankCode?: string;
+    accountNumber?: string;
+    currency?: string;
+  };
+  
+  // Payment provider
+  paymentProvider: 'stripe' | 'paystack';
+  migratedAt?: string;
 }
 
 export interface SignUpParams {

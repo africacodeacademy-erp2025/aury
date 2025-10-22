@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Dialog,
   DialogClose,
@@ -11,21 +11,16 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "../ui/button";
-import { loadStripe } from "@stripe/stripe-js";
-import {
-  EmbeddedCheckoutProvider,
-  EmbeddedCheckout,
-} from "@stripe/react-stripe-js";
 import { toast } from "sonner";
 import Image from "next/image";
 import { onAuthStateChanged } from "firebase/auth";
 import { firebaseAuth } from "@/firebase/client";
+import { Loader, ExternalLink, Shield, CreditCard } from "lucide-react";
 
 const PurchaseModal = ({ productId }: { productId: string }) => {
-  const stripePromise = loadStripe(
-    process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!
-  );
   const [userId, setUserId] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(firebaseAuth, (user) => {
@@ -34,40 +29,56 @@ const PurchaseModal = ({ productId }: { productId: string }) => {
     return () => unsubscribe();
   }, []);
 
-  const fetchClientSecret = useCallback(async () => {
+  const handlePurchase = async () => {
+    if (!userId) {
+      toast.error("Please sign in to make a purchase");
+      return;
+    }
+
+    setLoading(true);
     try {
-      const response = await fetch("/api/payments", {
+      const response = await fetch("/api/payments-paystack", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ 
           productId,
-          customerId: userId,
+          buyerId: userId,
         }),
       });
 
       const data = await response.json();
-      if (data?.error) {
-        toast.error(data.error);
-        throw new Error("Something went wrong");
+      
+      if (!response.ok || data?.error) {
+        toast.error(data.error || "Failed to initialize payment");
+        return;
       }
-      return data.client_secret;
-    } catch (error) {
-      console.error("Error creating checkout session: ", error);
-      throw error;
-    }
-  }, [productId, userId]);
 
-  const options = { fetchClientSecret };
+      // Redirect to Paystack checkout page
+      if (data.authorizationUrl) {
+        toast.success("Redirecting to payment page...");
+        window.location.href = data.authorizationUrl;
+      } else {
+        toast.error("Payment initialization failed");
+      }
+    } catch (error) {
+      console.error("Error creating payment: ", error);
+      toast.error("An error occurred. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <Dialog>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button className="bg-primary-600 cursor-pointer">Purchase</Button>
+        <Button className="bg-primary-600 cursor-pointer hover:bg-primary-700">
+          Purchase
+        </Button>
       </DialogTrigger>
 
-      <DialogContent className="my-5 py-6 px-4 sm:px-6 lg:px-10 max-h-[95vh] xl:max-w-screen-xl overflow-y-scroll">
+      <DialogContent className="max-w-md">
         {/* HEADER */}
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
@@ -79,25 +90,78 @@ const PurchaseModal = ({ productId }: { productId: string }) => {
               className="shrink-0"
             />
             <span className="bg-gradient-to-r from-primary-600 to-blue-600 bg-clip-text text-transparent font-semibold text-lg lg:text-xl">
-              Aury
+              Secure Checkout
             </span>
           </DialogTitle>
         </DialogHeader>
 
-        {/* EMBEDDED CHECKOUT */}
-        <EmbeddedCheckoutProvider options={options} stripe={stripePromise}>
-          <EmbeddedCheckout className="w-full h-[60vh] sm:h-[65vh] lg:h-[70vh] max-h-[80vh] overflow-y-scroll" />
-        </EmbeddedCheckoutProvider>
+        {/* CONTENT */}
+        <div className="space-y-6 py-4">
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 space-y-3">
+            <h4 className="font-semibold text-sm flex items-center gap-2">
+              <Shield className="w-4 h-4 text-blue-600" />
+              Secure Payment with Paystack
+            </h4>
+            <ul className="text-sm text-gray-700 space-y-2">
+              <li className="flex items-center gap-2">
+                <CreditCard className="w-4 h-4 text-green-600" />
+                Multiple payment methods accepted
+              </li>
+              <li className="flex items-center gap-2">
+                <Shield className="w-4 h-4 text-green-600" />
+                Bank-level security & encryption
+              </li>
+              <li className="flex items-center gap-2">
+                <ExternalLink className="w-4 h-4 text-green-600" />
+                Redirects to Paystack secure page
+              </li>
+            </ul>
+          </div>
+
+          <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+            <p className="text-sm text-gray-600">
+              You'll be redirected to Paystack's secure payment page to complete your purchase.
+              After payment, you'll be returned to Aury to view your order.
+            </p>
+          </div>
+
+          {!userId && (
+            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+              <p className="text-sm text-yellow-800">
+                ⚠️ Please sign in to continue with your purchase
+              </p>
+            </div>
+          )}
+        </div>
 
         {/* FOOTER */}
-        <DialogFooter className="fixed top-[900px] left-0 right-0 xl:static bg-white dark:bg-neutral-900 p-4">
-          <div className="w-full">
-            <DialogClose asChild>
-              <Button className="w-full xl:w-auto cursor-pointer" variant="secondary">
-                Cancel Payment
-              </Button>
-            </DialogClose>
-          </div>
+        <DialogFooter className="flex gap-2">
+          <DialogClose asChild>
+            <Button 
+              variant="outline" 
+              className="flex-1 cursor-pointer"
+              disabled={loading}
+            >
+              Cancel
+            </Button>
+          </DialogClose>
+          <Button 
+            onClick={handlePurchase}
+            disabled={loading || !userId}
+            className="flex-1 bg-primary-600 hover:bg-primary-700 cursor-pointer"
+          >
+            {loading ? (
+              <>
+                <Loader className="w-4 h-4 mr-2 animate-spin" />
+                Processing...
+              </>
+            ) : (
+              <>
+                <ExternalLink className="w-4 h-4 mr-2" />
+                Proceed to Payment
+              </>
+            )}
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

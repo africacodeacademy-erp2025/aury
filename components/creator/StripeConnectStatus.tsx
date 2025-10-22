@@ -25,7 +25,6 @@ export default function StripeConnectStatus({ user }: StripeConnectStatusProps) 
     if (user.stripeAccountId) {
       verifyAccountStatus();
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user.stripeAccountId]);
 
   const verifyAccountStatus = async () => {
@@ -88,7 +87,7 @@ export default function StripeConnectStatus({ user }: StripeConnectStatusProps) 
         <CardContent>
           <div className="space-y-4">
             <div className="bg-white rounded-lg p-4 space-y-2">
-              <h4 className="font-semibold text-sm">What you&apos;ll need:</h4>
+              <h4 className="font-semibold text-sm">What you'll need:</h4>
               <ul className="text-sm text-gray-600 space-y-1">
                 <li>✓ Government-issued ID</li>
                 <li>✓ Bank account details</li>
