@@ -10,11 +10,34 @@ export interface Product {
 
 export interface Order {
   id: string;
-  creatorId: string;
+  // Support both old and new field names
+  creatorId?: string;
+  sellerId?: string;
   customerId: string;
-  customerName: string;
-  products: Product[];
-  total: number;
-  status: string;
+  customerName?: string;
+  customerEmail?: string;
+  
+  // Support both product array and single product fields
+  products?: Product[];
+  productId?: string;
+  productName?: string;
+  productType?: string;
+  
+  // Amount and currency
+  total?: number;
+  amount?: number;
+  currency?: string;
+  
+  // Status
+  status?: string;
+  paymentStatus?: string;
+  
+  // Payment details
+  paymentProvider?: string;
+  paystackReference?: string;
+  transactionId?: string;
+  sellerName?: string;
+  
   createdAt: Timestamp; // Firestore timestamp
 }
+

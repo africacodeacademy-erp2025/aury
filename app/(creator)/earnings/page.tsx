@@ -2,6 +2,8 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import { firebaseAuth } from "@/firebase/client";
+import { onAuthStateChanged, User } from "firebase/auth";
 
 interface ProductItem {
   name: string;
@@ -15,28 +17,46 @@ interface Order {
   total?: number;
   status?: string;
   date?: string | number; // timestamp from Firestore
+  sellerId?: string;
 }
 
 export default function EarningsPage() {
+  const [user, setUser] = useState<User | null>(null);
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
 
+  // Listen for auth state changes
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(firebaseAuth, (u) => setUser(u));
+    return () => unsubscribe();
+  }, []);
+
   useEffect(() => {
     async function fetchOrders() {
+      if (!user?.uid) {
+        setLoading(false);
+        return;
+      }
+
       try {
         const res = await fetch("/api/orders");
         if (!res.ok) throw new Error("Failed to fetch orders");
         const data = await res.json();
+        
+        // Filter orders to only show current seller's orders
+        const sellerOrders = data.orders.filter((o: any) => 
+          o.sellerId === user.uid
+        );
+        
         setOrders(
-          data.orders.map((o: any) => ({
+          sellerOrders.map((o: any) => ({
             id: o.id,
             customerName: o.customerName,
             products: o.products || [],
             total: o.total || 0,
             status: o.status || "Pending",
-            date: o.createdAt?.seconds
-              ? new Date(o.createdAt.seconds * 1000).toISOString()
-              : new Date().toISOString(),
+            sellerId: o.sellerId,
+            date: o.date || new Date().toISOString(),
           }))
         );
       } catch (err) {
@@ -45,8 +65,11 @@ export default function EarningsPage() {
         setLoading(false);
       }
     }
-    fetchOrders();
-  }, []);
+    
+    if (user) {
+      fetchOrders();
+    }
+  }, [user]);
 
   return (
     <main className="mx-auto max-w-7xl p-6 space-y-8">
@@ -67,7 +90,7 @@ export default function EarningsPage() {
             Total Earnings
           </h3>
           <p className="text-3xl font-bold text-green-600 mt-2">
-            P{orders.reduce((sum, o) => sum + (o.total || 0), 0).toFixed(2)}
+            R{orders.reduce((sum, o) => sum + (o.total || 0), 0).toFixed(2)}
           </p>
           <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">All time</p>
         </div>
@@ -77,7 +100,7 @@ export default function EarningsPage() {
             This Month
           </h3>
           <p className="text-3xl font-bold text-blue-600 mt-2">
-            P{orders
+            R{orders
               .filter(
                 (o) =>
                   o.date !== undefined &&
@@ -169,7 +192,7 @@ export default function EarningsPage() {
                     <td className="px-6 py-4">
                       {order.products?.map((p) => `${p.name} x${p.quantity}`).join(", ")}
                     </td>
-                    <td className="px-6 py-4">P{(order.total || 0).toFixed(2)}</td>
+                    <td className="px-6 py-4">R{(order.total || 0).toFixed(2)}</td>
                     <td className="px-6 py-4">{order.status}</td>
                     <td className="px-6 py-4">
                       {order.date ? new Date(order.date).toLocaleDateString() : "-"}

@@ -34,7 +34,7 @@ export default function OrdersPage() {
     try {
       const q = query(
         collection(firebaseDb, 'orders'),
-        where('creatorId', '==', user.uid),
+        where('sellerId', '==', user.uid),
         orderBy('createdAt', 'desc')
       );
       const snapshot = await getDocs(q);
@@ -110,7 +110,7 @@ export default function OrdersPage() {
         >
           <div className="flex justify-between items-center mb-4">
             <div>
-              <p className="font-medium text-lg">{order.customerName}</p>
+              <p className="font-medium text-lg">{order.customerName || order.customerEmail || 'Customer'}</p>
               <p className="text-sm text-gray-500 dark:text-gray-400">Order ID: {order.id}</p>
               <p className="text-sm text-gray-500 dark:text-gray-400">
                 Created: {order.createdAt?.toDate?.().toLocaleString() || 'N/A'}
@@ -119,13 +119,13 @@ export default function OrdersPage() {
             <div className="flex flex-col items-end">
               <span
                 className={`px-3 py-1 rounded-full text-sm font-medium ${
-                  statusColors[order.status] || 'bg-gray-100 text-gray-800'
+                  statusColors[order.status ?? ''] || 'bg-gray-100 text-gray-800'
                 }`}
               >
-                {order.status}
+                {order.status || order.paymentStatus || 'Pending'}
               </span>
               <select
-                value={order.status}
+                value={order.status || order.paymentStatus || 'Pending'}
                 onChange={e => handleStatusChange(order.id, e.target.value)}
                 disabled={updatingOrderId === order.id}
                 className="mt-2 border px-3 py-1 rounded-lg dark:bg-gray-700 dark:text-white"
@@ -146,25 +146,43 @@ export default function OrdersPage() {
               <thead>
                 <tr className="border-b border-gray-300 dark:border-gray-600">
                   <th className="px-2 py-1">Product</th>
-                  <th className="px-2 py-1">Quantity</th>
-                  <th className="px-2 py-1">Price</th>
-                  <th className="px-2 py-1">Subtotal</th>
+                  <th className="px-2 py-1">Type</th>
+                  <th className="px-2 py-1">Amount</th>
+                  <th className="px-2 py-1">Currency</th>
                 </tr>
               </thead>
               <tbody>
-                {order.products.map((prod: Product, index: number) => (
-                  <tr key={index} className="border-b border-gray-200 dark:border-gray-700">
-                    <td className="px-2 py-1">{prod.name}</td>
-                    <td className="px-2 py-1">{prod.quantity}</td>
-                    <td className="px-2 py-1">${prod.price}</td>
-                    <td className="px-2 py-1">${prod.price * prod.quantity}</td>
+                {/* Check if products array exists, otherwise show single product */}
+                {order.products && order.products.length > 0 ? (
+                  order.products.map((prod: Product, index: number) => (
+                    <tr key={index} className="border-b border-gray-200 dark:border-gray-700">
+                      <td className="px-2 py-1">{prod.name}</td>
+                      <td className="px-2 py-1">{prod.quantity || 1}</td>
+                      <td className="px-2 py-1">${prod.price}</td>
+                      <td className="px-2 py-1">${prod.price * (prod.quantity || 1)}</td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr className="border-b border-gray-200 dark:border-gray-700">
+                    <td className="px-2 py-1">{order.productName || 'Product'}</td>
+                    <td className="px-2 py-1">{order.productType || 'N/A'}</td>
+                    <td className="px-2 py-1">
+                      {order.currency} {((order.amount || 0) / 100).toFixed(2)}
+                    </td>
+                    <td className="px-2 py-1">{order.paymentProvider || 'N/A'}</td>
                   </tr>
-                ))}
+                )}
                 <tr>
                   <td colSpan={3} className="px-2 py-2 font-medium text-right">
                     Total:
                   </td>
-                  <td className="px-2 py-2 font-medium">${order.total}</td>
+                  <td className="px-2 py-2 font-medium">
+                    {order.currency || 'ZAR'} {
+                      order.total 
+                        ? order.total 
+                        : ((order.amount || 0) / 100).toFixed(2)
+                    }
+                  </td>
                 </tr>
               </tbody>
             </table>

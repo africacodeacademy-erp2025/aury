@@ -129,7 +129,7 @@ export default function ProductList() {
               </p>
 
               <p className="text-xl font-bold text-gray-900 dark:text-white">
-                P{product.price}
+                R{product.price}
               </p>
 
               <div className="flex justify-between items-center pt-2 border-t border-gray-200 dark:border-gray-700">

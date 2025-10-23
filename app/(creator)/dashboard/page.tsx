@@ -131,7 +131,7 @@ export default function CreatorDashboardPage() {
         const ordersSnap = await getDocs(
           query(
             collection(firebaseDb, "orders"),
-            where("creatorId", "==", uid),
+            where("sellerId", "==", uid),
             orderBy("createdAt", "desc")
           )
         );
@@ -245,7 +245,7 @@ export default function CreatorDashboardPage() {
                 Total Earnings
               </h3>
               <p className="text-3xl font-bold text-green-500">
-                P{totalEarnings.toFixed(2)}
+                R{totalEarnings.toFixed(2)}
               </p>
             </div>
           </div>
@@ -335,7 +335,7 @@ export default function CreatorDashboardPage() {
                       {item.name}
                     </h4>
                     <p className="text-gray-600 dark:text-gray-300">
-                      P{item.price}
+                      R{item.price}
                     </p>
                     <div className="flex gap-2 mt-2">
                       <button
@@ -363,7 +363,7 @@ export default function CreatorDashboardPage() {
                   Recent Orders
                 </h3>
                 <a
-                  href="/creator/earnings"
+                  href="/earnings"
                   className="text-blue-500 text-sm hover:underline"
                 >
                   View all
@@ -380,7 +380,7 @@ export default function CreatorDashboardPage() {
                   >
                     <p className="font-medium">{order.customerName}</p>
                     <p className="text-sm text-gray-500 dark:text-gray-400">
-                      Total: P{order.total}
+                      Total: R{order.total}
                     </p>
                     <p className="text-sm text-gray-500 dark:text-gray-400">
                       Status: {order.status}

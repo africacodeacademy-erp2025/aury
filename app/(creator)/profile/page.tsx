@@ -3,12 +3,23 @@
 "use client";
 
 import ProductModal from "@/components/creator/ProductModal";
-import { Plus, Camera, TrendingUp, Users, DollarSign } from "lucide-react";
+import { Plus, Camera, TrendingUp, Users, DollarSign, Heart, MessageCircle } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { onAuthStateChanged } from "firebase/auth";
 import { firebaseAuth, firebaseDb } from "@/firebase/client";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { useRouter } from "next/navigation";
+
+interface Post {
+  id: string;
+  content: string;
+  imageUrl?: string;
+  authorId: string;
+  authorName: string;
+  createdAt: any;
+  likesCount?: number;
+  commentsCount?: number;
+}
 
 export default function CreatorDashboardPage() {
   const router = useRouter();
@@ -32,8 +43,12 @@ export default function CreatorDashboardPage() {
   const [postsCount, setPostsCount] = useState(0);
   const [followersCount, setFollowersCount] = useState(0);
   const [patternsCount, setPatternsCount] = useState(0);
-  const [earnings, setEarnings] = useState("P0.00");
+  const [earnings, setEarnings] = useState("R0.00");
   const [storiesCount, setStoriesCount] = useState(0);
+  
+  // Posts data
+  const [userPosts, setUserPosts] = useState<Post[]>([]);
+  const [loadingPosts, setLoadingPosts] = useState(false);
 
   // Load profile and stats
   useEffect(() => {
@@ -46,23 +61,66 @@ export default function CreatorDashboardPage() {
       setUserId(authUser.uid);
 
       try {
-        // Fetch profile
-        const userRef = doc(firebaseDb, "creators", authUser.uid);
+        // Fetch profile from users collection (not creators)
+        const userRef = doc(firebaseDb, "users", authUser.uid);
         const snap = await getDoc(userRef);
-        if (snap.exists()) setFormData(snap.data() as any);
+        if (snap.exists()) {
+          const userData = snap.data();
+          setFormData({
+            name: userData.name || authUser.displayName || "",
+            bio: userData.bio || "",
+            contact: userData.email || authUser.email || "",
+            logoUrl: userData.photoURL || authUser.photoURL || "",
+          });
+        }
 
-        // Fetch dashboard data (counts only)
-        const postsRes = await fetch(`/api/${authUser.uid}/posts`);
-        const itemsRes = await fetch(`/api/${authUser.uid}/items`);
+        // Fetch patterns count from products collection
+        const productsRef = await fetch(`/api/products`);
+        if (productsRef.ok) {
+          const productsData = await productsRef.json();
+          const userProducts = productsData.products?.filter((p: any) => p.userId === authUser.uid) || [];
+          setPatternsCount(userProducts.length);
+        }
+
+        // Fetch followers count
         const followersRes = await fetch(`/api/${authUser.uid}/followers`);
+        if (followersRes.ok) {
+          const followersData = await followersRes.json();
+          setFollowersCount(followersData.length || 0);
+        }
 
-        if (postsRes.ok) setPostsCount((await postsRes.json()).length);
-        if (itemsRes.ok) setPatternsCount((await itemsRes.json()).length);
-        if (followersRes.ok) setFollowersCount((await followersRes.json()).length);
+        // Fetch real earnings from orders
+        const ordersRes = await fetch("/api/orders");
+        if (ordersRes.ok) {
+          const ordersData = await ordersRes.json();
+          const sellerOrders = ordersData.orders.filter((o: any) => o.sellerId === authUser.uid);
+          
+          // Calculate total earnings
+          const totalEarnings = sellerOrders.reduce((sum: number, order: any) => {
+            return sum + (order.total || 0);
+          }, 0);
+          
+          // Get currency from first order or default to ZAR
+          const currency = sellerOrders[0]?.currency || "ZAR";
+          console.log("Detected currency:", currency);
+          const currencySymbol = currency === "ZAR" ? "R" : currency === "USD" ? "$" : currency;
+          
+          setEarnings(`${currencySymbol}${totalEarnings.toFixed(2)}`);
+        }
 
-        // Placeholder: earnings & stories
-        setEarnings("P0.00");
-        setStoriesCount(0);
+        // Fetch posts count using the correct API endpoint
+        const postsRes = await fetch(`/api/posts`);
+        if (postsRes.ok) {
+          const postsData = await postsRes.json();
+          // Filter posts by current user
+          const userPosts = postsData.posts?.filter((p: any) => p.authorId === authUser.uid) || [];
+          setPostsCount(userPosts.length);
+        }
+
+        // Fetch user's posts for display using the API
+        await fetchUserPosts(authUser.uid);
+
+        setStoriesCount(0); // Stories feature to be implemented
       } catch (err) {
         console.error("Error loading profile/dashboard data:", err);
       } finally {
@@ -73,6 +131,26 @@ export default function CreatorDashboardPage() {
     return () => unsubscribe();
   }, []);
 
+  // Fetch posts created by the user
+  const fetchUserPosts = async (uid: string) => {
+    setLoadingPosts(true);
+    try {
+      const response = await fetch(`/api/posts`);
+      if (response.ok) {
+        const data = await response.json();
+        // Filter posts by current user
+        const posts = data.posts?.filter((p: Post) => p.authorId === uid) || [];
+        setUserPosts(posts);
+      } else {
+        console.error("Failed to fetch posts:", response.statusText);
+      }
+    } catch (err) {
+      console.error("Error fetching user posts:", err);
+    } finally {
+      setLoadingPosts(false);
+    }
+  };
+
   const handleProfileChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
@@ -81,8 +159,13 @@ export default function CreatorDashboardPage() {
     if (!user) return;
     setSavingProfile(true);
     try {
-      const userRef = doc(firebaseDb, "creators", user.uid);
-      await setDoc(userRef, formData, { merge: true });
+      const userRef = doc(firebaseDb, "users", user.uid);
+      await setDoc(userRef, {
+        name: formData.name,
+        bio: formData.bio,
+        email: formData.contact,
+        photoURL: formData.logoUrl,
+      }, { merge: true });
       alert("Profile updated successfully!");
     } catch (err) {
       console.error("Failed to save profile:", err);
@@ -252,23 +335,67 @@ export default function CreatorDashboardPage() {
           {/* Content based on active tab */}
           <div className="p-4 sm:p-6">
             {activeTab === 'posts' ? (
-              <div className="flex flex-col items-center justify-center py-12 sm:py-20 px-4">
-                <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full border-2 border-gray-300 dark:border-gray-600 flex items-center justify-center mb-4">
-                  <Camera className="h-8 w-8 sm:h-10 sm:w-10 text-gray-400" />
+              loadingPosts ? (
+                <div className="flex justify-center py-12">
+                  <p className="text-gray-500">Loading posts...</p>
                 </div>
-                <h3 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white mb-2">
-                  Share your first post
-                </h3>
-                <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 text-center mb-6 max-w-sm">
-                  When you share photos and videos of your patterns, they will appear here.
-                </p>
-                <button
-                  onClick={() => setIsProductModalOpen(true)}
-                  className="bg-blue-500 hover:bg-blue-600 text-white px-4 sm:px-6 py-2 rounded-lg font-medium transition-colors duration-200 text-sm sm:text-base"
-                >
-                  Create your first post
-                </button>
-              </div>
+              ) : userPosts.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-12 sm:py-20 px-4">
+                  <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full border-2 border-gray-300 dark:border-gray-600 flex items-center justify-center mb-4">
+                    <Camera className="h-8 w-8 sm:h-10 sm:w-10 text-gray-400" />
+                  </div>
+                  <h3 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white mb-2">
+                    Share your first post
+                  </h3>
+                  <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 text-center mb-6 max-w-sm">
+                    When you share photos and videos of your patterns, they will appear here.
+                  </p>
+                  <button
+                    onClick={() => router.push("/community")}
+                    className="bg-blue-500 hover:bg-blue-600 text-white px-4 sm:px-6 py-2 rounded-lg font-medium transition-colors duration-200 text-sm sm:text-base"
+                  >
+                    Create your first post
+                  </button>
+                </div>
+              ) : (
+                <div className="grid grid-cols-3 gap-1 sm:gap-2">
+                  {userPosts.map((post) => (
+                    <div
+                      key={post.id}
+                      className="aspect-square relative group cursor-pointer"
+                      onClick={() => router.push(`/community?postId=${post.id}`)}
+                    >
+                      {post.imageUrl ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={post.imageUrl}
+                          alt="Post"
+                          className="w-full h-full object-cover rounded-lg"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-gray-200 dark:bg-gray-700 rounded-lg flex items-center justify-center p-4">
+                          <p className="text-xs text-gray-600 dark:text-gray-400 line-clamp-3 text-center">
+                            {post.content}
+                          </p>
+                        </div>
+                      )}
+                      {/* Hover overlay */}
+                      <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all duration-200 rounded-lg flex items-center justify-center opacity-0 group-hover:opacity-100">
+                        <div className="flex gap-4 text-white">
+                          <div className="flex items-center gap-1">
+                            <Heart className="h-5 w-5 fill-white" />
+                            <span className="text-sm font-semibold">{post.likesCount || 0}</span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <MessageCircle className="h-5 w-5 fill-white" />
+                            <span className="text-sm font-semibold">{post.commentsCount || 0}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )
             ) : (
               <div className="flex flex-col items-center justify-center py-12 sm:py-20 px-4">
                 <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full border-2 border-gray-300 dark:border-gray-600 flex items-center justify-center mb-4">
@@ -306,7 +433,7 @@ export default function CreatorDashboardPage() {
                   className="w-full flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white px-4 py-3 rounded-lg font-medium transition-colors duration-200 text-sm sm:text-base"
                 >
                   <Plus className="h-4 w-4 sm:h-5 sm:w-5" />
-                  Add New Pattern
+                  Add New Product
                 </button>
                 <button className="w-full flex items-center gap-2 bg-purple-500 hover:bg-purple-600 text-white px-4 py-3 rounded-lg font-medium transition-colors duration-200 text-sm sm:text-base">
                   <Camera className="h-4 w-4 sm:h-5 sm:w-5" />
@@ -322,7 +449,7 @@ export default function CreatorDashboardPage() {
               </h3>
               <div className="space-y-3">
                 <div className="flex items-start gap-3 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                  <div className="w-6 h-6 sm:w-8 sm:h-8 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <div className="w-6 h-6 sm:w-8 sm:h-8 bg-blue-500 rounded-full flex items-center justify-center shrink-0 mt-0.5">
                     <span className="text-white text-xs sm:text-sm">1</span>
                   </div>
                   <div>
@@ -335,7 +462,7 @@ export default function CreatorDashboardPage() {
                   </div>
                 </div>
                 <div className="flex items-start gap-3 p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
-                  <div className="w-6 h-6 sm:w-8 sm:h-8 bg-purple-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <div className="w-6 h-6 sm:w-8 sm:h-8 bg-purple-500 rounded-full flex items-center justify-center shrink-0 mt-0.5">
                     <span className="text-white text-xs sm:text-sm">2</span>
                   </div>
                   <div>
@@ -348,7 +475,7 @@ export default function CreatorDashboardPage() {
                   </div>
                 </div>
                 <div className="flex items-start gap-3 p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
-                  <div className="w-6 h-6 sm:w-8 sm:h-8 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <div className="w-6 h-6 sm:w-8 sm:h-8 bg-green-500 rounded-full flex items-center justify-center shrink-0 mt-0.5">
                     <span className="text-white text-xs sm:text-sm">3</span>
                   </div>
                   <div>

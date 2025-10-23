@@ -40,9 +40,27 @@ export default function EditProfilePage() {
       setUser(authUser);
 
       try {
-        const userRef = doc(firebaseDb, "creators", authUser.uid);
+        // Fetch from users collection
+        const userRef = doc(firebaseDb, "users", authUser.uid);
         const snap = await getDoc(userRef);
-        if (snap.exists()) setFormData(snap.data() as CreatorProfile);
+        
+        if (snap.exists()) {
+          const userData = snap.data();
+          setFormData({
+            name: userData.name || authUser.displayName || "",
+            bio: userData.bio || "",
+            contact: userData.email || authUser.email || "",
+            logoUrl: userData.photoURL || authUser.photoURL || "",
+          });
+        } else {
+          // If no profile exists, populate with auth data
+          setFormData({
+            name: authUser.displayName || "",
+            bio: "",
+            contact: authUser.email || "",
+            logoUrl: authUser.photoURL || "",
+          });
+        }
       } catch (err) {
         console.error("Error fetching profile:", err);
       } finally {
@@ -80,8 +98,15 @@ export default function EditProfilePage() {
     setSaving(true);
 
     try {
-      const userRef = doc(firebaseDb, "creators", user.uid);
-      await setDoc(userRef, formData, { merge: true });
+      // Save to users collection
+      const userRef = doc(firebaseDb, "users", user.uid);
+      await setDoc(userRef, {
+        name: formData.name,
+        bio: formData.bio,
+        email: formData.contact,
+        photoURL: formData.logoUrl,
+        updatedAt: new Date(),
+      }, { merge: true });
 
       // Update Firebase Auth profile
       await updateProfile(user, {

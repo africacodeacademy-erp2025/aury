@@ -23,7 +23,7 @@ const ProductCard = ({ product, viewMode = 'grid' }: ProductCardProps) => {
       <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-xl transition-all duration-300">
         <div className="flex flex-col sm:flex-row">
           {/* Product Image */}
-          <div className="relative w-full sm:w-48 h-48 sm:h-32 bg-slate-100 dark:bg-slate-700 flex-shrink-0">
+          <div className="relative w-full sm:w-48 h-48 sm:h-32 bg-slate-100 dark:bg-slate-700 shrink-0">
             {product.imageUrl ? (
               <Image
                 src={product.imageUrl}
@@ -99,11 +99,11 @@ const ProductCard = ({ product, viewMode = 'grid' }: ProductCardProps) => {
                 <div className="text-right">
                   <div className="flex items-center gap-2">
                     <span className="text-xl font-bold text-primary-600">
-                      P{product.price}
+                      R{product.price}
                     </span>
                     {product.originalPrice && product.originalPrice > product.price && (
                       <span className="text-sm text-gray-500 line-through">
-                        P{product.originalPrice}
+                        R{product.originalPrice}
                       </span>
                     )}
                   </div>
@@ -213,11 +213,11 @@ const ProductCard = ({ product, viewMode = 'grid' }: ProductCardProps) => {
         <div>
           <div className="flex items-center gap-2">
             <span className="text-xl font-bold text-primary-600">
-              P{product.price}
+              R{product.price}
             </span>
             {product.originalPrice && product.originalPrice > product.price && (
               <span className="text-sm text-gray-500 line-through">
-                P{product.originalPrice}
+                R{product.originalPrice}
               </span>
             )}
           </div>

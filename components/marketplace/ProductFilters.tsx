@@ -263,14 +263,14 @@ export default function ProductFilters({
                   className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer slider"
                 />
                 <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-1">
-                  <span>P{filterOptions.priceRange.min}</span>
-                  <span>P{filterOptions.priceRange.max}</span>
+                  <span>R{filterOptions.priceRange.min}</span>
+                  <span>R{filterOptions.priceRange.max}</span>
                 </div>
               </div>
               
               <div className="text-center">
                 <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                  P{filters.minPrice} - P{filters.maxPrice}
+                  R{filters.minPrice} - R{filters.maxPrice}
                 </span>
               </div>
             </div>

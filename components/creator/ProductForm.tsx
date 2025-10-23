@@ -131,7 +131,7 @@ export default function ProductForm({ editingItem, onSubmit }: ProductFormProps)
       <div className="grid grid-cols-2 gap-4">
         <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-200">
-            Price (P)
+            Price (R)
           </label>
           <input
             type="number"
@@ -143,7 +143,7 @@ export default function ProductForm({ editingItem, onSubmit }: ProductFormProps)
 
         <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-200">
-            Original Price (P)
+            Original Price (R)
           </label>
           <input
             type="number"

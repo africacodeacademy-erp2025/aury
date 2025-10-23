@@ -64,7 +64,7 @@ export default async function ProductPage({ params }: PageProps) {
           </div>
 
           <div className="flex items-baseline gap-3">
-            <span className="text-3xl font-semibold text-primary-600">P {product.price}</span>
+            <span className="text-3xl font-semibold text-primary-600">R {product.price}</span>
           </div>
 
           <p className="leading-relaxed text-base sm:text-lg whitespace-pre-line">
