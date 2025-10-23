@@ -25,10 +25,10 @@ export default function PostCard({ post }: PostCardProps) {
 
   const [likesCount, setLikesCount] = useState(post.likesCount ?? 0);
   const [liked, setLiked] = useState(!!post.liked);
+  const [commentsCount, setCommentsCount] = useState(post.commentsCount ?? 0);
   const [showComments, setShowComments] = useState(false);
   const [comments, setComments] = useState<PostComment[]>([]);
   const [commentText, setCommentText] = useState('');
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [loadingComments, setLoadingComments] = useState(false);
   const [submittingComment, setSubmittingComment] = useState(false);
   const [showShareMenu, setShowShareMenu] = useState(false);
@@ -108,6 +108,7 @@ export default function PostCard({ post }: PostCardProps) {
       const result = await addComment(post.id, commentText.trim());
       if (result.success && result.comment) {
         setComments(prev => [result.comment as PostComment, ...prev]);
+        setCommentsCount(prev => prev + 1);
         setCommentText('');
         toast.success('Comment added!');
       } else {
@@ -233,7 +234,7 @@ export default function PostCard({ post }: PostCardProps) {
                 ${showComments ? 'text-blue-500 bg-blue-50 dark:bg-blue-900/20' : 'text-gray-600 dark:text-gray-400 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20'}`}
             >
               <MessageCircle className="h-5 w-5" />
-              <span className="text-sm font-medium">{post.commentsCount ?? 0}</span>
+              <span className="text-sm font-medium">{commentsCount}</span>
             </button>
           </div>
 
@@ -266,6 +267,7 @@ export default function PostCard({ post }: PostCardProps) {
         {/* Comments Section */}
         {showComments && (
           <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700 space-y-4">
+            {/* Comment Input */}
             <div className="flex items-start space-x-3">
               <input
                 value={commentText}
@@ -282,6 +284,46 @@ export default function PostCard({ post }: PostCardProps) {
                 {submittingComment ? 'Posting...' : 'Post'}
               </button>
             </div>
+
+            {/* Comments List */}
+            {comments.length > 0 && (
+              <div className="space-y-3">
+                {comments.map((comment) => (
+                  <div key={comment.id} className="flex items-start space-x-3 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                    <div className="h-8 w-8 flex items-center justify-center rounded-full bg-gray-400 text-white font-bold text-sm shrink-0">
+                      {getInitials(comment.authorName)}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <h4 className="font-medium text-sm text-gray-900 dark:text-white">
+                          {comment.authorName}
+                        </h4>
+                        <span className="text-xs text-gray-500 dark:text-gray-400">
+                          {formatTimestamp(new Date(comment.createdAt))}
+                        </span>
+                      </div>
+                      <p className="text-sm text-gray-700 dark:text-gray-300 mt-1 wrap-break-word">
+                        {comment.text}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Loading State */}
+            {loadingComments && (
+              <div className="text-center py-4">
+                <p className="text-sm text-gray-500 dark:text-gray-400">Loading comments...</p>
+              </div>
+            )}
+
+            {/* Empty State */}
+            {!loadingComments && comments.length === 0 && (
+              <div className="text-center py-4">
+                <p className="text-sm text-gray-500 dark:text-gray-400">No comments yet. Be the first to comment!</p>
+              </div>
+            )}
           </div>
         )}
       </div>
