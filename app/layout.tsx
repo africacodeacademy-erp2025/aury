@@ -65,7 +65,7 @@ export const metadata: Metadata = {
       "Shop unique handmade crochet, knitting, and craft items. Connect with artisans, buy exclusive patterns, or sell your creations on Aury.",
     images: [
       {
-        url: "/og-image.webp",
+        url: `${siteUrl}/aury-logo.png`,
         width: 1200,
         height: 630,
         alt: "Aury - Handmade Marketplace",
@@ -77,7 +77,7 @@ export const metadata: Metadata = {
     title: "Aury - Handmade Marketplace for Crochet & Craft Patterns",
     description:
       "Discover unique handmade items, exclusive patterns, and connect with artisans on Aury marketplace.",
-    images: ["/og-image.webp"],
+    images: [`${siteUrl}/aury-logo.png`],
     creator: "@AuryMarketplace",
   },
   robots: {
