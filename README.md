@@ -889,7 +889,7 @@ git commit -m "feat: add your feature description"
 
 5. **Push and create PR**
 ```bash
-git push origin feature/your-feature-name
+git push origin feature-your-feature-name
 ```
 
 ### Coding Standards
@@ -994,17 +994,10 @@ Payout Timeline: 2-7 business days
 - [ ] Email notifications
 - [ ] Mobile app
 
-See [docs/IMPLEMENTATION_STATUS.md](docs/IMPLEMENTATION_STATUS.md) for detailed task list.
 
 ---
 
 ## 📞 Support & Resources
-
-### Documentation
-- 📘 [Quick Start Guide](docs/QUICKSTART_PAYSTACK.md)
-- 🔧 [Paystack Setup](docs/PAYSTACK_SETUP.md)
-- 🔄 [Migration Guide](docs/PAYSTACK_MIGRATION.md)
-- ✅ [Implementation Status](docs/IMPLEMENTATION_STATUS.md)
 
 ### External Resources
 - [Paystack Documentation](https://paystack.com/docs)
