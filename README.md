@@ -480,7 +480,6 @@ After deployment:
 - [ ] Custom domain configured (optional)
 - [ ] SSL certificate valid
 - [ ] Test production deployment with test transaction
-- [ ] Monitor Vercel logs for errors
 
 ### Alternative Deployment Options
 
@@ -840,7 +839,6 @@ If you encounter issues not covered here:
 1. **Check Documentation**
    - Review [docs/QUICKSTART_PAYSTACK.md](docs/QUICKSTART_PAYSTACK.md)
    - Read [docs/PAYSTACK_SETUP.md](docs/PAYSTACK_SETUP.md)
-   - Check [docs/IMPLEMENTATION_STATUS.md](docs/IMPLEMENTATION_STATUS.md)
 
 2. **Check Logs**
    - Browser console for client errors
@@ -865,7 +863,7 @@ If you encounter issues not covered here:
 
 1. **Create a feature branch**
 ```bash
-git checkout -b feature/your-feature-name
+git checkout -b feature-your-feature-name
 ```
 
 2. **Make your changes**
