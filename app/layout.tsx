@@ -13,12 +13,14 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://aury.africacodefoundry.com";
+const siteUrl =
+  process.env.NEXT_PUBLIC_SITE_URL || "https://aury.africacodefoundry.com";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: "Aury - Handmade Marketplace for Crochet, Knitting & Craft Patterns",
+    default:
+      "Aury - Handmade Marketplace for Crochet, Knitting & Craft Patterns",
     template: "%s | Aury Marketplace",
   },
   description:
@@ -137,6 +139,24 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
+        <link
+          rel="apple-touch-icon"
+          sizes="180x180"
+          href="/apple-touch-icon.png"
+        />
+        <link
+          rel="icon"
+          type="image/png"
+          sizes="32x32"
+          href="/favicon-32x32.png"
+        />
+        <link
+          rel="icon"
+          type="image/png"
+          sizes="16x16"
+          href="/favicon-16x16.png"
+        />
+        <link rel="manifest" href="/site.webmanifest" />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
