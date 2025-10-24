@@ -94,7 +94,7 @@
 - **API Routes**: Next.js Server Actions & Route Handlers
 - **Database**: [Firebase Firestore](https://firebase.google.com/docs/firestore)
 - **Authentication**: [Firebase Auth](https://firebase.google.com/docs/auth)
-- **File Storage**: [Firebase Storage](https://firebase.google.com/docs/storage)
+- **File Storage**: [ImgBB Storage](https://imgbb.com/)
 - **Payments**: [Paystack API](https://paystack.com/docs/api)
 
 ### AI & Tools
