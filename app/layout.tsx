@@ -126,7 +126,7 @@ export default function RootLayout({
       url: siteUrl,
       logo: {
         "@type": "ImageObject",
-        url: `${siteUrl}/logo.png`,
+        url: `${siteUrl}/aury-logo.png`,
       },
       // sameAs: [
       //   "https://twitter.com/AuryMarketplace",
