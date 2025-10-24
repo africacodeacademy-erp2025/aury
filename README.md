@@ -98,7 +98,7 @@
 - **Payments**: [Paystack API](https://paystack.com/docs/api)
 
 ### AI & Tools
-- **AI Generation**: [Google Gemini AI](https://ai.google.dev/)
+- **AI Generation**: [Google Gemini AI](https://ai.google.dev/) and [OpenAI](https://platform.openai.com/account/api-keys)
 - **PDF Generation**: [jsPDF](https://github.com/parallax/jsPDF)
 - **Image Processing**: [html2canvas](https://html2canvas.hertzen.com/)
 - **Email**: [Nodemailer](https://nodemailer.com/)
@@ -110,10 +110,10 @@
 - **Type Checking**: TypeScript Compiler
 
 ### DevOps
-- **Hosting**: [Vercel](https://vercel.com/)
+- **Hosting**: [Dockge](https://dockge.kuma.pet/)
 - **Version Control**: Git
 - **CI/CD**: GitHub Actions (optional)
-- **Monitoring**: Vercel Analytics
+- **Monitoring**: Vercel Analytics | Sentry
 
 ---
 
