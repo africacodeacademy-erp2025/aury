@@ -2,6 +2,8 @@
 
 import React, { useEffect, useState } from "react";
 import ProductModal from "@/components/creator/ProductModal";
+import Inbox from "@/components/creator/Inbox";
+import MessageThread from "@/components/creator/MessageThread";
 import {
   Plus,
   Camera,
@@ -9,6 +11,7 @@ import {
   Users,
   DollarSign,
   Package,
+  MessageCircle,
 } from "lucide-react";
 import { onAuthStateChanged } from "firebase/auth";
 import { firebaseAuth, firebaseDb } from "@/firebase/client";
@@ -29,8 +32,7 @@ interface DashboardPost {
   id: string;
   imageUrl?: string;
   caption: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  createdAt?: any;
+  createdAt?: Date;
 }
 
 export default function CreatorDashboardPage() {
@@ -43,6 +45,13 @@ export default function CreatorDashboardPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [isProductModalOpen, setIsProductModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<Product | null>(null);
+
+  // ---------- Messaging State ----------
+  const [showInbox, setShowInbox] = useState(false);
+  const [selectedThreadId, setSelectedThreadId] = useState<string | null>(
+    null
+  );
+  const [otherUserId, setOtherUserId] = useState<string | null>(null);
 
   // -------------------------------
   // Fetch all dashboard data
@@ -61,10 +70,7 @@ export default function CreatorDashboardPage() {
       try {
         // ---------- Products ----------
         const productsSnap = await getDocs(
-          query(
-            collection(firebaseDb, "products"),
-            where("creatorId", "==", uid)
-          )
+          query(collection(firebaseDb, "products"), where("creatorId", "==", uid))
         );
         setItems(
           productsSnap.docs.map((doc) => ({
@@ -85,10 +91,13 @@ export default function CreatorDashboardPage() {
           postsSnap.docs.map((doc) => ({
             id: doc.id,
             ...doc.data(),
+            createdAt: doc.data().createdAt?.toDate
+              ? doc.data().createdAt.toDate()
+              : new Date(),
           })) as DashboardPost[]
         );
 
-        // ---------- Followers (from user document) ----------
+        // ---------- Followers ----------
         const userDoc = await getDoc(doc(firebaseDb, "users", uid));
         if (userDoc.exists()) {
           const data = userDoc.data();
@@ -110,15 +119,15 @@ export default function CreatorDashboardPage() {
             ...data,
             total: data.total ?? 0,
             status: data.status ?? "Pending",
-            createdAt: data.createdAt ?? { toDate: () => new Date() },
+            createdAt: data.createdAt?.toDate
+              ? data.createdAt.toDate()
+              : new Date(),
           } as Order;
         });
         setOrders(ordersData);
       } catch (err) {
         console.error("Error fetching dashboard data:", err);
-        alert(
-          err instanceof Error ? err.message : "Failed to fetch dashboard data"
-        );
+        alert(err instanceof Error ? err.message : "Failed to fetch dashboard data");
       } finally {
         setLoading(false);
       }
@@ -178,12 +187,12 @@ export default function CreatorDashboardPage() {
             Creator Dashboard
           </h1>
           <p className="mt-2 text-gray-600 dark:text-gray-300">
-            Welcome back! Manage your patterns, posts, and community engagement.
+            Welcome back! Manage your patterns, posts, products, and community engagement.
           </p>
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
           <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg border flex items-center gap-4">
             <TrendingUp className="h-8 w-8 text-blue-500" />
             <div>
@@ -229,134 +238,171 @@ export default function CreatorDashboardPage() {
               </p>
             </div>
           </div>
+
+          <div
+            className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg border flex items-center gap-4 cursor-pointer"
+            onClick={() => {
+              setShowInbox(true);
+              setSelectedThreadId(null);
+            }}
+          >
+            <MessageCircle className="h-8 w-8 text-pink-500" />
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                Messages
+              </h3>
+              <p className="text-3xl font-bold text-pink-500">&nbsp;</p>
+            </div>
+          </div>
         </div>
 
         {/* Main Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 space-y-6">
-            {/* Posts */}
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border">
-              <div className="p-6 border-b border-gray-200 dark:border-gray-700">
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                  Recent Posts
-                </h3>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4">
-                {posts.length === 0 && (
-                  <p className="text-gray-500 col-span-2">No posts yet.</p>
-                )}
-                {posts.map((post) => (
-                  <div
-                    key={post.id}
-                    className="relative group overflow-hidden rounded-lg aspect-square"
-                  >
-                    <Image
-                      src={post.imageUrl ?? ""}
-                      alt={post.caption}
-                      width={100}
-                      height={100}
-                      className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                    />
-
-                    <div className="absolute inset-0 bg-black bg-opacity-30 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity duration-300">
-                      <p className="text-white text-sm text-center px-2">
-                        {post.caption}
-                      </p>
-                    </div>
+            {/* Conditional Messaging */}
+            {showInbox && userId ? (
+              selectedThreadId ? (
+                <MessageThread
+                  threadId={selectedThreadId}
+                  otherUserId={otherUserId!}
+                  currentUserId={userId}
+                  onBack={() => setSelectedThreadId(null)}
+                />
+              ) : (
+                <Inbox
+                  currentUserId={userId}
+                  onSelectThread={(threadId, otherId) => {
+                    setSelectedThreadId(threadId);
+                    setOtherUserId(otherId);
+                  }}
+                />
+              )
+            ) : (
+              <>
+                {/* Posts */}
+                <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border">
+                  <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                      Recent Posts
+                    </h3>
                   </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Products */}
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border mt-6">
-              <div className="p-6 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                  Your Products
-                </h3>
-                {items.length === 0 && (
-                  <button
-                    onClick={() => {
-                      setEditingItem(null);
-                      setIsProductModalOpen(true);
-                    }}
-                    className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm"
-                  >
-                    Add Your First Product
-                  </button>
-                )}
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4">
-                {items.map((item) => (
-                  <div
-                    key={item.id}
-                    className="relative group overflow-hidden rounded-lg border p-2"
-                  >
-                    <Image
-                      src={item.imageUrl ?? ""}
-                      alt={item.name}
-                      width={900}
-                      height={192}
-                      className="w-full h-48 object-cover rounded-lg mb-2"
-                    />
-                    <h4 className="font-semibold text-gray-900 dark:text-white">
-                      {item.name}
-                    </h4>
-                    <p className="text-gray-600 dark:text-gray-300">
-                      P{item.price}
-                    </p>
-                    <div className="flex gap-2 mt-2">
-                      <button
-                        className="flex-1 bg-yellow-500 hover:bg-yellow-600 text-white py-1 rounded"
-                        onClick={() => handleEditProduct(item)}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4">
+                    {posts.length === 0 && (
+                      <p className="text-gray-500 col-span-2">No posts yet.</p>
+                    )}
+                    {posts.map((post) => (
+                      <div
+                        key={post.id}
+                        className="relative group overflow-hidden rounded-lg aspect-square"
                       >
-                        Edit
-                      </button>
-                      <button
-                        className="flex-1 bg-red-500 hover:bg-red-600 text-white py-1 rounded"
-                        onClick={() => handleDeleteProduct(item.id)}
-                      >
-                        Delete
-                      </button>
-                    </div>
+                        <Image
+                          src={post.imageUrl ?? ""}
+                          alt={post.caption}
+                          width={100}
+                          height={100}
+                          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                        />
+                        <div className="absolute inset-0 bg-black bg-opacity-30 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity duration-300">
+                          <p className="text-white text-sm text-center px-2">
+                            {post.caption}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </div>
-            </div>
+                </div>
 
-            {/* Recent Orders Snapshot */}
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border mt-6">
-              <div className="p-6 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                  Recent Orders
-                </h3>
-                <a
-                  href="/creator/earnings"
-                  className="text-blue-500 text-sm hover:underline"
-                >
-                  View all
-                </a>
-              </div>
-              <div className="p-4 space-y-4">
-                {orders.length === 0 && (
-                  <p className="text-gray-500">No orders yet.</p>
-                )}
-                {orders.slice(0, 3).map((order) => (
-                  <div
-                    key={order.id}
-                    className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg"
-                  >
-                    <p className="font-medium">{order.customerName}</p>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                      Total: P{order.total}
-                    </p>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                      Status: {order.status}
-                    </p>
+                {/* Products */}
+                <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border mt-6">
+                  <div className="p-6 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                      Your Products
+                    </h3>
+                    {items.length === 0 && (
+                      <button
+                        onClick={() => {
+                          setEditingItem(null);
+                          setIsProductModalOpen(true);
+                        }}
+                        className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm"
+                      >
+                        Add Your First Product
+                      </button>
+                    )}
                   </div>
-                ))}
-              </div>
-            </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4">
+                    {items.map((item) => (
+                      <div
+                        key={item.id}
+                        className="relative group overflow-hidden rounded-lg border p-2"
+                      >
+                        <Image
+                          src={item.imageUrl ?? ""}
+                          alt={item.name}
+                          width={900}
+                          height={192}
+                          className="w-full h-48 object-cover rounded-lg mb-2"
+                        />
+                        <h4 className="font-semibold text-gray-900 dark:text-white">
+                          {item.name}
+                        </h4>
+                        <p className="text-gray-600 dark:text-gray-300">
+                          P{item.price}
+                        </p>
+                        <div className="flex gap-2 mt-2">
+                          <button
+                            className="flex-1 bg-yellow-500 hover:bg-yellow-600 text-white py-1 rounded"
+                            onClick={() => handleEditProduct(item)}
+                          >
+                            Edit
+                          </button>
+                          <button
+                            className="flex-1 bg-red-500 hover:bg-red-600 text-white py-1 rounded"
+                            onClick={() => handleDeleteProduct(item.id)}
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Recent Orders Snapshot */}
+                <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border mt-6">
+                  <div className="p-6 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                      Recent Orders
+                    </h3>
+                    <a
+                      href="/creator/earnings"
+                      className="text-blue-500 text-sm hover:underline"
+                    >
+                      View all
+                    </a>
+                  </div>
+                  <div className="p-4 space-y-4">
+                    {orders.length === 0 && (
+                      <p className="text-gray-500">No orders yet.</p>
+                    )}
+                    {orders.slice(0, 3).map((order) => (
+                      <div
+                        key={order.id}
+                        className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg"
+                      >
+                        <p className="font-medium">{order.customerName}</p>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                          Total: P{order.total}
+                        </p>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                          Status: {order.status}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </>
+            )}
           </div>
 
           {/* Sidebar */}
