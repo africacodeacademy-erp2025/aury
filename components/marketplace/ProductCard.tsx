@@ -95,7 +95,7 @@ const ProductCard = ({ product, viewMode = "grid" }: ProductCardProps) => {
                         </span>
                       )}
                   </div>
-                  {product.difficulty && (
+                  {product.category && product.category === "crochet pattern" && (
                     <span className="text-xs text-gray-500 dark:text-gray-400 capitalize">
                       {product.difficulty}
                     </span>
@@ -135,7 +135,7 @@ const ProductCard = ({ product, viewMode = "grid" }: ProductCardProps) => {
         </div>
 
         {/* Difficulty Badge */}
-        {product.difficulty && (
+        {product.category && product.category === "crochet pattern" && (
           <div className="absolute top-3 right-3">
             <span
               className={`text-xs px-2 py-1 rounded-full font-medium capitalize ${

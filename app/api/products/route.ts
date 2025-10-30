@@ -1,27 +1,25 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { createProduct, getProducts } from '@/lib/actions/product.action';
+import { NextRequest, NextResponse } from "next/server";
+import { createProduct, getProducts } from "@/lib/actions/product.action";
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { 
-      name, 
-      description, 
-      price, 
-      originalPrice, 
-      category, 
-      imageUrl, 
+    const {
+      name,
+      description,
+      price,
+      category,
+      imageUrl,
       stock,
       materials,
       difficulty,
-      tags 
+      tags,
     } = body;
 
     const result = await createProduct({
       name,
       description,
       price,
-      originalPrice,
       category,
       imageUrl,
       stock,
@@ -36,9 +34,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(result, { status: 400 });
     }
   } catch (error) {
-    console.error('Error in POST /api/products:', error);
+    console.error("Error in POST /api/products:", error);
     return NextResponse.json(
-      { success: false, message: 'Internal server error' },
+      { success: false, message: "Internal server error" },
       { status: 500 }
     );
   }
@@ -47,10 +45,19 @@ export async function POST(request: NextRequest) {
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const category = searchParams.get('category') || undefined;
-    const minPrice = searchParams.get('minPrice') ? Number(searchParams.get('minPrice')) : undefined;
-    const maxPrice = searchParams.get('maxPrice') ? Number(searchParams.get('maxPrice')) : undefined;
-    const sortBy = searchParams.get('sortBy') as 'newest' | 'price_asc' | 'price_desc' | 'popular' || undefined;
+    const category = searchParams.get("category") || undefined;
+    const minPrice = searchParams.get("minPrice")
+      ? Number(searchParams.get("minPrice"))
+      : undefined;
+    const maxPrice = searchParams.get("maxPrice")
+      ? Number(searchParams.get("maxPrice"))
+      : undefined;
+    const sortBy =
+      (searchParams.get("sortBy") as
+        | "newest"
+        | "price_asc"
+        | "price_desc"
+        | "popular") || undefined;
 
     const result = await getProducts({
       category,
@@ -65,9 +72,9 @@ export async function GET(request: NextRequest) {
       return NextResponse.json(result, { status: 400 });
     }
   } catch (error) {
-    console.error('Error in GET /api/products:', error);
+    console.error("Error in GET /api/products:", error);
     return NextResponse.json(
-      { success: false, message: 'Internal server error', products: [] },
+      { success: false, message: "Internal server error", products: [] },
       { status: 500 }
     );
   }
