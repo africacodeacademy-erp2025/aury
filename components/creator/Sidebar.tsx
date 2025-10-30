@@ -7,7 +7,6 @@ import {
   Home,
   Users,
   FileText,
-  DollarSign,
   Plus,
   Menu,
   X,
@@ -30,7 +29,6 @@ const navItems: NavItem[] = [
   { name: "Community", href: "/community", icon: Users },
   { name: "Patterns & Products", href: "/patterns", icon: FileText },
   { name: "Orders", href: "/creator/orders", icon: ShoppingBag },
-  { name: "Earnings", href: "/earnings", icon: DollarSign },
   { name: "Profile", href: "/profile", icon: UserCircle },
 ];
 

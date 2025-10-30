@@ -363,7 +363,7 @@ export default function CreatorDashboardPage() {
                   Recent Orders
                 </h3>
                 <a
-                  href="/earnings"
+                  href="/creator/orders"
                   className="text-blue-500 text-sm hover:underline"
                 >
                   View all
