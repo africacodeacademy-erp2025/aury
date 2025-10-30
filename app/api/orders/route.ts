@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-// app/api/orders/route.ts
+
 import { NextResponse } from "next/server";
 import { firebaseDb } from "@/firebase/admin"; // server-only firebase-admin
 
@@ -85,7 +85,7 @@ export async function GET() {
   } catch (error: any) {
     console.error("Error fetching orders:", error);
     return NextResponse.json(
-      { error: "Failed to fetch orders" },
+      { error: `${error}` },
       { status: 500 }
     );
   }

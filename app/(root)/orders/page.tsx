@@ -3,15 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { firebaseDb, firebaseAuth } from "@/firebase/client";
-import {
-  collection,
-  query,
-  where,
-  getDocs,
-  doc,
-  updateDoc,
-  orderBy,
-} from "firebase/firestore";
+import { collection, query, where, getDocs } from "firebase/firestore";
 import { onAuthStateChanged, User as FirebaseUser } from "firebase/auth";
 import type { Order, Product } from "@/types/order";
 import { User } from "@/types";
@@ -34,7 +26,6 @@ export default function OrdersPage() {
   const [user, setUser] = useState<User | null>(null);
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
-  const [updatingOrderId, setUpdatingOrderId] = useState<string | null>(null);
 
   // Listen for logged-in user
   useEffect(() => {
@@ -48,41 +39,38 @@ export default function OrdersPage() {
     return () => unsubscribe();
   }, []);
 
-  // Fetch orders - either as seller or customer
+  // Fetch orders for customers only
   const fetchOrders = async () => {
     if (!firebaseUser?.uid || !user) return;
 
     try {
-      let q;
-
-      // If creator or craft-business, fetch orders where they are the seller
-      if (user.role === "creator" || user.role === "craft-business") {
-        q = query(
-          collection(firebaseDb, "orders"),
-          where("sellerId", "==", firebaseUser.uid),
-          orderBy("createdAt", "desc")
-        );
-      } else {
-        // If customer, fetch orders where they are the customer
-        q = query(
-          collection(firebaseDb, "orders"),
-          where("customerId", "==", firebaseUser.uid),
-          orderBy("createdAt", "desc")
-        );
-      }
+      // For customers, fetch orders where they are the customer
+      const q = query(
+        collection(firebaseDb, "orders"),
+        where("customerId", "==", firebaseUser.uid)
+      );
 
       const snapshot = await getDocs(q);
-      const ordersData: Order[] = snapshot.docs.map(
-        (doc) =>
-          ({
-            id: doc.id,
-            ...doc.data(),
-          } as Order)
-      );
+      const ordersData: Order[] = snapshot.docs
+        .map(
+          (doc) =>
+            ({
+              id: doc.id,
+              ...doc.data(),
+            } as Order)
+        )
+        // Sort by createdAt on client side to avoid Firebase index requirement
+        .sort((a, b) => {
+          const aTime = a.createdAt?.toDate?.()?.getTime() || 0;
+          const bTime = b.createdAt?.toDate?.()?.getTime() || 0;
+          return bTime - aTime; // Descending order (newest first)
+        });
+      
       setOrders(ordersData);
     } catch (err) {
       console.error(err);
-      toast.error("Failed to fetch orders");
+      toast.error(`${err}`);
+    //   toast.error("Failed to fetch orders");
     } finally {
       setLoading(false);
     }
@@ -93,44 +81,17 @@ export default function OrdersPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [firebaseUser, user]);
 
-  // Update order status (only for sellers)
-  const handleStatusChange = async (orderId: string, status: string) => {
-    if (!user || user.role === "customer") {
-      toast.error("Only sellers can update order status");
-      return;
-    }
 
-    setUpdatingOrderId(orderId);
-    try {
-      const docRef = doc(firebaseDb, "orders", orderId);
-      await updateDoc(docRef, { status });
-      setOrders((prev) =>
-        prev.map((order) =>
-          order.id === orderId ? { ...order, status } : order
-        )
-      );
-      toast.success(`Order status updated to ${status}`);
-    } catch (err) {
-      console.error(err);
-      toast.error("Failed to update order status");
-    } finally {
-      setUpdatingOrderId(null);
-    }
-  };
 
   if (loading) return <p className="p-6 text-center">Loading orders...</p>;
 
   if (!orders.length) {
     return (
       <div className="max-w-6xl mx-auto p-6">
-        <h1 className="text-3xl font-bold mb-4">
-          {user?.role === "customer" ? "My Orders" : "Orders Dashboard"}
-        </h1>
+        <h1 className="text-3xl font-bold mb-4">My Orders</h1>
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-8 text-center">
           <p className="text-gray-500 dark:text-gray-400">
-            {user?.role === "customer"
-              ? "You haven't made any purchases yet."
-              : "No orders yet."}
+            You haven&apos;t made any purchases yet.
           </p>
         </div>
       </div>
@@ -141,13 +102,10 @@ export default function OrdersPage() {
   const totalOrders = orders.length;
   const pendingOrders = orders.filter((o) => o.status === "Pending").length;
   const completedOrders = orders.filter((o) => o.status === "Completed").length;
-  const isSeller = user?.role === "creator" || user?.role === "craft-business";
 
   return (
     <div className="max-w-6xl mx-auto p-6 space-y-6">
-      <h1 className="text-3xl font-bold mb-4">
-        {isSeller ? "Orders Dashboard" : "My Orders"}
-      </h1>
+      <h1 className="text-3xl font-bold mb-4">My Orders</h1>
 
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
@@ -181,9 +139,7 @@ export default function OrdersPage() {
             <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-4 gap-4">
               <div>
                 <p className="font-medium text-lg">
-                  {isSeller
-                    ? order.customerName || order.customerEmail || "Customer"
-                    : order.sellerName || "Seller"}
+                  {order.sellerName || "Seller"}
                 </p>
                 <p className="text-sm text-gray-500 dark:text-gray-400">
                   Order ID: {order.id}
@@ -202,28 +158,6 @@ export default function OrdersPage() {
                 >
                   {order.status || order.paymentStatus || "Pending"}
                 </span>
-                {isSeller && (
-                  <select
-                    value={order.status || order.paymentStatus || "Pending"}
-                    onChange={(e) =>
-                      handleStatusChange(order.id, e.target.value)
-                    }
-                    disabled={updatingOrderId === order.id}
-                    className="border px-3 py-1 rounded-lg dark:bg-gray-700 dark:text-white text-sm"
-                  >
-                    {[
-                      "Pending",
-                      "Processing",
-                      "Shipped",
-                      "Completed",
-                      "Cancelled",
-                    ].map((statusOption) => (
-                      <option key={statusOption} value={statusOption}>
-                        {statusOption}
-                      </option>
-                    ))}
-                  </select>
-                )}
               </div>
             </div>
 

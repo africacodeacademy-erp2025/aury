@@ -29,7 +29,7 @@ const navItems: NavItem[] = [
   { name: "Dashboard", href: "/dashboard", icon: Home },
   { name: "Community", href: "/community", icon: Users },
   { name: "Patterns & Products", href: "/patterns", icon: FileText },
-  { name: "Orders", href: "/orders", icon: ShoppingBag },
+  { name: "Orders", href: "/creator/orders", icon: ShoppingBag },
   { name: "Earnings", href: "/earnings", icon: DollarSign },
   { name: "Profile", href: "/profile", icon: UserCircle },
 ];

@@ -10,7 +10,6 @@ import {
   getDocs,
   doc,
   updateDoc,
-  orderBy,
 } from "firebase/firestore";
 import { onAuthStateChanged, User as FirebaseUser } from "firebase/auth";
 import type { Order, Product } from "@/types/order";
@@ -48,37 +47,33 @@ export default function OrdersPage() {
     return () => unsubscribe();
   }, []);
 
-  // Fetch orders - either as seller or customer
+  // Fetch orders for creators/craft-business only
   const fetchOrders = async () => {
     if (!firebaseUser?.uid || !user) return;
 
     try {
-      let q;
-
-      // If creator or craft-business, fetch orders where they are the seller
-      if (user.role === "creator" || user.role === "craft-business") {
-        q = query(
-          collection(firebaseDb, "orders"),
-          where("sellerId", "==", firebaseUser.uid),
-          orderBy("createdAt", "desc")
-        );
-      } else {
-        // If customer, fetch orders where they are the customer
-        q = query(
-          collection(firebaseDb, "orders"),
-          where("customerId", "==", firebaseUser.uid),
-          orderBy("createdAt", "desc")
-        );
-      }
+      // For creators/craft-business, fetch orders where they are the seller
+      const q = query(
+        collection(firebaseDb, "orders"),
+        where("sellerId", "==", firebaseUser.uid)
+      );
 
       const snapshot = await getDocs(q);
-      const ordersData: Order[] = snapshot.docs.map(
-        (doc) =>
-          ({
-            id: doc.id,
-            ...doc.data(),
-          } as Order)
-      );
+      const ordersData: Order[] = snapshot.docs
+        .map(
+          (doc) =>
+            ({
+              id: doc.id,
+              ...doc.data(),
+            } as Order)
+        )
+        // Sort by createdAt on client side to avoid Firebase index requirement
+        .sort((a, b) => {
+          const aTime = a.createdAt?.toDate?.()?.getTime() || 0;
+          const bTime = b.createdAt?.toDate?.()?.getTime() || 0;
+          return bTime - aTime; // Descending order (newest first)
+        });
+      
       setOrders(ordersData);
     } catch (err) {
       console.error(err);
@@ -123,15 +118,9 @@ export default function OrdersPage() {
   if (!orders.length) {
     return (
       <div className="max-w-6xl mx-auto p-6">
-        <h1 className="text-3xl font-bold mb-4">
-          {user?.role === "customer" ? "My Orders" : "Orders Dashboard"}
-        </h1>
+        <h1 className="text-3xl font-bold mb-4">Orders Dashboard</h1>
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-8 text-center">
-          <p className="text-gray-500 dark:text-gray-400">
-            {user?.role === "customer"
-              ? "You haven't made any purchases yet."
-              : "No orders yet."}
-          </p>
+          <p className="text-gray-500 dark:text-gray-400">No orders yet.</p>
         </div>
       </div>
     );
@@ -141,13 +130,10 @@ export default function OrdersPage() {
   const totalOrders = orders.length;
   const pendingOrders = orders.filter((o) => o.status === "Pending").length;
   const completedOrders = orders.filter((o) => o.status === "Completed").length;
-  const isSeller = user?.role === "creator" || user?.role === "craft-business";
 
   return (
     <div className="max-w-6xl mx-auto p-6 space-y-6">
-      <h1 className="text-3xl font-bold mb-4">
-        {isSeller ? "Orders Dashboard" : "My Orders"}
-      </h1>
+      <h1 className="text-3xl font-bold mb-4">Orders Dashboard</h1>
 
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
@@ -181,9 +167,7 @@ export default function OrdersPage() {
             <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-4 gap-4">
               <div>
                 <p className="font-medium text-lg">
-                  {isSeller
-                    ? order.customerName || order.customerEmail || "Customer"
-                    : order.sellerName || "Seller"}
+                  {order.customerName || order.customerEmail || "Customer"}
                 </p>
                 <p className="text-sm text-gray-500 dark:text-gray-400">
                   Order ID: {order.id}
@@ -202,28 +186,24 @@ export default function OrdersPage() {
                 >
                   {order.status || order.paymentStatus || "Pending"}
                 </span>
-                {isSeller && (
-                  <select
-                    value={order.status || order.paymentStatus || "Pending"}
-                    onChange={(e) =>
-                      handleStatusChange(order.id, e.target.value)
-                    }
-                    disabled={updatingOrderId === order.id}
-                    className="border px-3 py-1 rounded-lg dark:bg-gray-700 dark:text-white text-sm"
-                  >
-                    {[
-                      "Pending",
-                      "Processing",
-                      "Shipped",
-                      "Completed",
-                      "Cancelled",
-                    ].map((statusOption) => (
-                      <option key={statusOption} value={statusOption}>
-                        {statusOption}
-                      </option>
-                    ))}
-                  </select>
-                )}
+                <select
+                  value={order.status || order.paymentStatus || "Pending"}
+                  onChange={(e) => handleStatusChange(order.id, e.target.value)}
+                  disabled={updatingOrderId === order.id}
+                  className="border px-3 py-1 rounded-lg dark:bg-gray-700 dark:text-white text-sm"
+                >
+                  {[
+                    "Pending",
+                    "Processing",
+                    "Shipped",
+                    "Completed",
+                    "Cancelled",
+                  ].map((statusOption) => (
+                    <option key={statusOption} value={statusOption}>
+                      {statusOption}
+                    </option>
+                  ))}
+                </select>
               </div>
             </div>
 
