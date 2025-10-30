@@ -28,7 +28,7 @@ const MarketplaceGrid = () => {
     category: "All Categories",
     materials: [],
     minPrice: 0,
-    maxPrice: 10000,
+    maxPrice: 1000000,
     sortBy: "newest",
     searchQuery: "",
   });
@@ -41,7 +41,7 @@ const MarketplaceGrid = () => {
   }>({
     categories: ["All Categories"],
     materials: [],
-    priceRange: { min: 0, max: 10000 },
+    priceRange: { min: 0, max: 1000000 },
   });
 
   useEffect(() => {
