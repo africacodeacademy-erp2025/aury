@@ -5,12 +5,6 @@ import ProductForm from "./ProductForm";
 import { createProduct, updateProduct } from "@/lib/actions/product.action";
 import { CreateProductParams, Product } from "@/types";
 
-// type ProductModalProps = {
-//   isOpen: boolean;
-//   onClose: () => void;
-//   editingItem?: Product | null;
-//   onSuccess: () => void;
-// };
 type ProductModalProps = {
   isOpen: boolean;
   onClose: () => void;

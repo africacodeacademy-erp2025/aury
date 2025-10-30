@@ -146,7 +146,6 @@ export interface CreateProductParams {
   name: string;
   description: string;
   price: number;
-  originalPrice?: number;
   category: string;
   imageUrl?: string | null;
   stock?: number;

@@ -15,6 +15,7 @@ interface NavItem {
 const navItems: NavItem[] = [
   { name: "Home", href: "/" },
   { name: "Marketplace", href: "/marketplace" },
+  { name: "Orders", href: "/orders" },
 ];
 
 export default function Header() {

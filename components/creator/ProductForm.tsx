@@ -20,7 +20,7 @@ export default function ProductForm({ editingItem, onSubmit }: ProductFormProps)
   >({
     name: editingItem?.name ?? "",
     description: editingItem?.description ?? "",
-    category: editingItem?.category ?? "",
+    category: editingItem?.category ?? "Finished Product",
     price: editingItem?.price ?? 0,
     originalPrice: editingItem?.originalPrice ?? undefined,
     stock: editingItem?.stock ?? 0,
@@ -39,7 +39,6 @@ export default function ProductForm({ editingItem, onSubmit }: ProductFormProps)
     description: values.description,
     category: values.category,
     price: values.price,
-    originalPrice: values.originalPrice ?? undefined,
     imageUrl: values.imageUrl ?? null,
     stock: values.stock,
     materials: values.materials,
@@ -106,12 +105,14 @@ export default function ProductForm({ editingItem, onSubmit }: ProductFormProps)
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-200">
             Category
           </label>
-          <input
-            type="text"
+          <select
             value={formValues.category}
             onChange={(e) => setFormValues({ ...formValues, category: e.target.value })}
-            className="mt-1 w-full rounded-lg border border-gray-300 dark:border-gray-600 p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-          />
+            className="mt-1 w-full rounded-lg border border-gray-300 dark:border-gray-600 p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:bg-gray-800 dark:text-white"
+          >
+            <option value="Finished Product">Finished Product</option>
+            <option value="Crochet Pattern">Crochet Pattern</option>
+          </select>
         </div>
 
         <div>
@@ -127,36 +128,17 @@ export default function ProductForm({ editingItem, onSubmit }: ProductFormProps)
         </div>
       </div>
 
-      {/* Price & Original Price */}
-      <div className="grid grid-cols-2 gap-4">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-200">
-            Price (R)
-          </label>
-          <input
-            type="number"
-            value={formValues.price}
-            onChange={(e) => setFormValues({ ...formValues, price: Number(e.target.value) })}
-            className="mt-1 w-full rounded-lg border border-gray-300 dark:border-gray-600 p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-200">
-            Original Price (R)
-          </label>
-          <input
-            type="number"
-            value={formValues.originalPrice ?? ""}
-            onChange={(e) =>
-              setFormValues({
-                ...formValues,
-                originalPrice: e.target.value ? Number(e.target.value) : undefined,
-              })
-            }
-            className="mt-1 w-full rounded-lg border border-gray-300 dark:border-gray-600 p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-          />
-        </div>
+      {/* Price */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-200">
+          Price (R)
+        </label>
+        <input
+          type="number"
+          value={formValues.price}
+          onChange={(e) => setFormValues({ ...formValues, price: Number(e.target.value) })}
+          className="mt-1 w-full rounded-lg border border-gray-300 dark:border-gray-600 p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+        />
       </div>
 
       {/* Image Upload */}
