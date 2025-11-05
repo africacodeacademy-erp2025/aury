@@ -1,10 +1,10 @@
 import { getCurrentUser } from "@/lib/actions/auth.action";
 import { NextResponse } from "next/server";
-import { GoogleGenAI } from "@google/genai";
+import OpenAI from "openai";
 
 // Create client with API key
-const ai = new GoogleGenAI({
-    apiKey: process.env.GEMINI_API_KEY!,
+const openai = new OpenAI({
+    apiKey: process.env.OPENAI_API_KEY!,
 });
 
 export async function GET() {
@@ -44,7 +44,7 @@ export async function POST(request: Request) {
             );
         }
 
-        // build gemini prompt
+        // build OpenAI prompt
         const prompt = `Generate a professional crochet pattern with the following details:
 
 Pattern Name: ${patternName}
@@ -61,19 +61,19 @@ Include:
 - Step-by-step instructions with stitch counts
 `;
 
-        // call Gemini
-        const response = await ai.models.generateContent({
-            model: "gemini-2.5-flash",
-            contents: [
+        // call OpenAI
+        const response = await openai.chat.completions.create({
+            model: "gpt-4o-mini",
+            messages: [
                 {
                     role: "user",
-                    parts: [{ text: prompt }],
+                    content: prompt,
                 },
             ],
         });
 
         // Extract text from response
-        const output = response.candidates?.[0]?.content?.parts?.[0]?.text || "No pattern generated.";
+        const output = response.choices?.[0]?.message?.content || "No pattern generated.";
 
         return NextResponse.json(
             {
