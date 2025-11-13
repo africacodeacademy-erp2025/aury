@@ -6,6 +6,7 @@ import { LogOut, Menu, X } from "lucide-react";
 import { getCurrentUser, signOut } from "@/lib/actions/auth.action";
 import { useRouter } from "next/navigation";
 import { User } from "@/types";
+import { useUnreadCount } from "@/lib/useMessaging";
 
 interface NavItem {
   name: string;
@@ -16,11 +17,13 @@ const navItems: NavItem[] = [
   { name: "Home", href: "/" },
   { name: "Marketplace", href: "/marketplace" },
   { name: "Orders", href: "/orders" },
+  { name: "Messages", href: "/messages" },
 ];
 
 export default function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [user, setUser] = useState<User | null>(null);
+  const unreadCount = useUnreadCount();
 
   const router = useRouter();
 
@@ -68,9 +71,14 @@ export default function Header() {
               <Link
                 key={item.name}
                 href={item.href}
-                className="text-gray-700 hover:text-primary-600 dark:text-gray-200 font-medium"
+                className="text-gray-700 hover:text-primary-600 dark:text-gray-200 font-medium relative"
               >
                 {item.name}
+                {item.name === "Messages" && user && unreadCount > 0 && (
+                  <span className="absolute -top-1 -right-3 flex h-5 w-5 items-center justify-center rounded-full bg-destructive-100 text-[10px] font-bold text-white">
+                    {unreadCount > 9 ? "9+" : unreadCount}
+                  </span>
+                )}
               </Link>
             ))}
           </nav>
@@ -135,10 +143,17 @@ export default function Header() {
               <Link
                 key={item.name}
                 href={item.href}
-                className="block px-3 py-2 rounded-md text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-800"
+                className="block px-3 py-2 rounded-md text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-800 relative"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
-                {item.name}
+                <span className="flex items-center justify-between">
+                  {item.name}
+                  {item.name === "Messages" && user && unreadCount > 0 && (
+                    <span className="flex h-5 w-5 items-center justify-center rounded-full bg-destructive-100 text-[10px] font-bold text-white">
+                      {unreadCount > 9 ? "9+" : unreadCount}
+                    </span>
+                  )}
+                </span>
               </Link>
             ))}
 
