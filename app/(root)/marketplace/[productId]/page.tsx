@@ -7,6 +7,7 @@ import { getProductById, getProducts } from "@/lib/actions/product.action";
 import ProductCard from "@/components/marketplace/ProductCard";
 import PurchaseModal from "@/components/marketplace/PurchaseModal";
 import { Product } from "@/types";
+import { ContactSellerButton } from "@/components/marketplace/ContactSellerButton";
 
 type PageProps = {
   params: Promise<{ productId: string }>;
@@ -81,6 +82,12 @@ export default async function ProductPage({ params }: PageProps) {
           <div className="flex flex-col sm:flex-row gap-3 sm:items-center">
             {/* <AddToCartButton productId={product.id} /> */}
             <PurchaseModal productId={product.id} />
+            <ContactSellerButton
+              sellerId={product.sellerId}
+              sellerName={product.sellerName}
+              productId={product.id}
+              productName={product.name}
+            />
           </div>
 
           <div className="mt-2 text-sm text-muted-foreground">

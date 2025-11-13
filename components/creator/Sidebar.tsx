@@ -13,10 +13,12 @@ import {
   LogOut,
   UserCircle,
   ShoppingBag,
+  MessageCircle,
 } from "lucide-react";
 import { getCurrentUser, signOut } from "@/lib/actions/auth.action";
 import PostModal from "./PostModal";
 import { User } from "@/types";
+import { useUnreadCount } from "@/lib/useMessaging";
 
 interface NavItem {
   name: string;
@@ -27,6 +29,7 @@ interface NavItem {
 const navItems: NavItem[] = [
   { name: "Dashboard", href: "/dashboard", icon: Home },
   { name: "Community", href: "/community", icon: Users },
+  { name: "Messages", href: "/messages", icon: MessageCircle },
   { name: "Patterns & Products", href: "/patterns", icon: FileText },
   { name: "Orders", href: "/creator/orders", icon: ShoppingBag },
   { name: "Profile", href: "/profile", icon: UserCircle },
@@ -39,6 +42,7 @@ export default function Sidebar() {
   const [isPostModalOpen, setIsPostModalOpen] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
+  const unreadCount = useUnreadCount();
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -141,6 +145,7 @@ export default function Sidebar() {
             {navItems.map((item) => {
               const isActive = pathname === item.href;
               const Icon = item.icon;
+              const showBadge = item.name === "Messages" && unreadCount > 0;
 
               return (
                 <Link
@@ -148,7 +153,7 @@ export default function Sidebar() {
                   href={item.href}
                   onClick={() => setIsMobileOpen(false)}
                   className={`
-                    flex items-center gap-3 px-3 py-2 rounded-lg transition-colors duration-200
+                    flex items-center gap-3 px-3 py-2 rounded-lg transition-colors duration-200 relative
                     ${
                       isActive
                         ? "bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400"
@@ -161,6 +166,11 @@ export default function Sidebar() {
                   <Icon className="h-5 w-5 shrink-0" />
                   {!isCollapsed && (
                     <span className="font-medium">{item.name}</span>
+                  )}
+                  {showBadge && (
+                    <span className="ml-auto bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                      {unreadCount > 9 ? "9+" : unreadCount}
+                    </span>
                   )}
                 </Link>
               );

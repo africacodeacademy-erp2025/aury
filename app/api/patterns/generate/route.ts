@@ -18,7 +18,6 @@ export async function POST(request: Request) {
     try {
         const { patternName, projectType, difficultyLevel, yarnWeight, hookSize, sizeDimensions, customInstructions } = await request.json();
 
-
         // validation
         if (
             !patternName?.trim() ||
@@ -34,7 +33,6 @@ export async function POST(request: Request) {
             );
         }
 
-
         // auth check
         const user = await getCurrentUser();
         if (!user) {
@@ -43,7 +41,6 @@ export async function POST(request: Request) {
                 { status: 401 }
             );
         }
-
         // build OpenAI prompt
         const prompt = `Generate a professional crochet pattern with the following details:
 
@@ -60,7 +57,6 @@ Include:
 - Gauge and tension info
 - Step-by-step instructions with stitch counts
 `;
-
         // call OpenAI
         const response = await openai.chat.completions.create({
             model: "gpt-4o-mini",
