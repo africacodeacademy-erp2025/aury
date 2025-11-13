@@ -3,6 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
+import posthog from "posthog-js";
 import {
   ShoppingBag,
   Palette,
@@ -123,7 +124,7 @@ const page = () => {
               variants={fadeInUp}
               className="flex flex-col sm:flex-row gap-4 justify-center items-center"
             >
-              <Link href="/marketplace">
+              <Link href="/marketplace" onClick={() => posthog.capture('test_event')}>
                 <Button className="bg-primary-200 text-white text-base px-8 py-6 shadow-md shadow-primary-200/50 rounded-full transition-all">
                   Explore Marketplace
                   <ArrowRight className="ml-2 w-5 h-5" />
